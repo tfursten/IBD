@@ -170,16 +170,12 @@ int main(int ac, char** av)
 
 
 
-        if (vm.count("MaxX"))
-            cout << "X dimension was set to " << vm["MaxX"].as<int>() << ".\n";
-        if (vm.count("MaxY"))
-            cout << "Y dimension was set to " << vm["MaxY"].as<int>() << ".\n";
-        if (vm.count("Generation"))
-            cout << "Run for " << vm["Generation"].as<int>() << " generations.\n";
-        if (vm.count("Offspring"))
-            cout << "Number of Offspring is set to " << vm["Offspring"].as<int>() << ".\n";
-        if (vm.count("MutP"))
-            cout << "Mutation rate set to " << vm["MutP"].as<double>() << ".\n";
+
+        cout << "X dimension was set to " << vm["MaxX"].as<int>() << ".\n";
+        cout << "Y dimension was set to " << vm["MaxY"].as<int>() << ".\n";
+        cout << "Run for " << vm["Generation"].as<int>() << " generations.\n";
+        cout << "Number of Offspring is set to " << vm["Offspring"].as<int>() << ".\n";
+        cout << "Mutation rate set to " << vm["MutP"].as<double>() << ".\n";
         if (vm.count("Distribution"))
             {
             static std::pair<const char*, Distribution> pairs[] = {{"EXPONENTIAL", EXPONENTIAL},{"TRIANGULAR", TRIANGULAR},{"GAUSSIAN",GAUSSIAN}};
@@ -198,20 +194,19 @@ int main(int ac, char** av)
                 throw std::invalid_argument("Error: Distribution not found\n");
                 }
             }
-        if (vm.count("Seed"))
+
+        if (vm["Seed"].as<unsigned int>() == 0)
             {
-            if (vm["Seed"].as<unsigned int>() == 0)
-                {
-                seed = create_random_seed();
-                myrand.seed(seed);
-                cout << "Using Generated PRNG Seed: "<< seed << endl;
-                }
-            else
-                {
-                cout << "User set PRNG seed to: " << vm["Seed"].as<unsigned int>() << ".\n";
-                myrand.seed(vm["Seed"].as<unsigned int>());
-                }
+            seed = create_random_seed();
+            myrand.seed(seed);
+            cout << "Using Generated PRNG Seed: "<< seed << endl;
             }
+        else
+            {
+            cout << "User set PRNG seed to: " << vm["Seed"].as<unsigned int>() << ".\n";
+            myrand.seed(vm["Seed"].as<unsigned int>());
+            }
+
 
     }
 
