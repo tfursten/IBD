@@ -37,6 +37,7 @@ private:
 	xorshift64 m_myrand;
 	std::vector<individual> pop1;
 	std::vector<individual> pop2;
+	std::vector<int> m_vtransect;
 	int m_nGenerations;
 	int m_nBurnIn;
 	int m_nAlleleID;
@@ -44,8 +45,9 @@ private:
 	int dispersal(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
+	void transIndices(int nTransPos);
 public:
-    void initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut, unsigned int seed);
+    void initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut, unsigned int seed, int nTransPos);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 
 

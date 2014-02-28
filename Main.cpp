@@ -6,7 +6,7 @@ int main(int ac, char** av)
 	namespace po = boost::program_options;
     using namespace std;
 
-    static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn;
+    static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn, nTransPos;
     unsigned int seed;
     static double dMut;
     static float fSigma;
@@ -35,6 +35,7 @@ int main(int ac, char** av)
             ("burn,b", po::value<int>(&nBurnIn)->default_value(0),"Set Burn-in Period")
             ("output_File, out", po::value<string>(&outfile),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
+            ("transect", po::value<int>(&nTransPos)->default_value(-1),"Set position of transect in X axis. Default: ~Center")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -112,6 +113,10 @@ int main(int ac, char** av)
 
         if (seed)
             cout << "User set PRNG seed to: " << seed << ".\n";
+        if (nTransPos == -1)
+            nTransPos = floor(nMaxX/2);
+        cout << "Transect position is set to: " << nTransPos << ".\n";
+
 
 
 
@@ -127,7 +132,7 @@ int main(int ac, char** av)
 	//Initialize Population
 
 	Population pop;
-	pop.initialize(nMaxX,nMaxY,nOffspring,1/fSigma,1/dMut,seed);
+	pop.initialize(nMaxX,nMaxY,nOffspring,1/fSigma,1/dMut,seed,nTransPos);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 

@@ -17,13 +17,18 @@ inline unsigned int create_random_seed() {
     return (v == 0) ? 0x6a27d958 : (v & 0x7FFFFFFF); // return at most a 31-bit seed
 }
 
+
+
 inline int mod(int a, int b)
+/*the way the % operator and fmod compute the remainder of division when either operand is negative is
+implementation defined to keep the same sign as the dividend. Ex: 2%5 = 2 but -2%5 = -2 instead of 3.
+*/
 {
     int r = a % b;
     return (r < 0? r+b : r);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut,unsigned int seed)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut,unsigned int seed, int nTransPos)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
@@ -32,6 +37,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     m_dMut = dMut;
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
+    transIndices(nTransPos);
     setMutCount();
     if (seed==0)
         {
@@ -125,6 +131,28 @@ void Population::step(int parent)
     }
 }
 
+void Population::transIndices(int nTransPos)
+{
+    cout << "trans" << nTransPos << endl;
+    int i0 = nTransPos * m_nMaxY + 0;
+    for(int yyy=0; yyy<m_nMaxY; yyy++)
+    {
+        m_vtransect.push_back(i0+yyy);
+        cout << i0+yyy << endl;
+    }
+
+
+}
+
+
+
+
+int minDist(pair<int,int> pos, int n)
+{
+    int d1 = mod((pos.first-pos.second),n); //n is m_nMaxX
+    int d2 = mod((pos.second-pos.first),n);
+    return min(d1,d2);
+}
 
 
 
