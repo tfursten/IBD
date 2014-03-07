@@ -20,8 +20,8 @@ inline unsigned int create_random_seed() {
 
 
 inline int mod(int a, int b)
-/*the way the % operator and fmod compute the remainder of division when either operand is negative is
-implementation defined to keep the same sign as the dividend. Ex: 2%5 = 2 but -2%5 = -2 instead of 3.
+/*the implementation of the % operator and fmod computes the remainder of division and is defined to keep the same sign as the dividend.
+Ex: 2%5 = 2 but -2%5 = -2 instead of 3.
 */
 {
     int r = a % b;
@@ -49,8 +49,8 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     // Initialize Population
     for(int iii=1; iii<=m_nIndividuals; iii++)
     {
-        pop1.push_back(individual(1,iii,iii-1));
-        pop2.push_back(individual(0,0,0));
+        m_vPop1.push_back(individual(1,iii,iii-1));
+        m_vPop2.push_back(individual(0,0,0));
     }
 
 }
@@ -85,7 +85,7 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         {
             step(parent);
         }
-        std::swap(pop1,pop2);
+        std::swap(m_vPop1,m_vPop2);
     }
 
     for(int ggg=0;ggg<m_nGenerations;++ggg)
@@ -94,11 +94,11 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         {
             step(parent);
         }
-        std::swap(pop1,pop2);
+        std::swap(m_vPop1,m_vPop2);
     }
 }
 
-int Population::dispersal(int x, int y)
+int Population::offDispersal(int x, int y)
 {
     double a = m_myrand.get_double52() * 2.0 * M_PI;
     double r = rand_exp(m_myrand,m_fSigma);
@@ -109,7 +109,7 @@ int Population::dispersal(int x, int y)
 
 void Population::step(int parent)
 {
-    unsigned int &parentHere = pop1[parent].nWeight;
+    unsigned int &parentHere = m_vPop1[parent].nWeight;
     if (parentHere)
     {
         parentHere=0;
@@ -117,28 +117,27 @@ void Population::step(int parent)
         int nY = parent%m_nMaxY;
         for (int off=0; off<m_nOffspring; off++)
         {
-            int nNewCell = dispersal(nX,nY);
+            int nNewCell = offDispersal(nX,nY);
             unsigned int nSeedWeight = m_myrand.get_uint32();
-            unsigned int nCellWeight = pop2[nNewCell].nWeight;
-            int offAllele = mutation(pop1[parent].nAllele);
+            unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
+            int offAllele = mutation(m_vPop1[parent].nAllele);
             if (nSeedWeight > nCellWeight)
             {
-                pop2[nNewCell].nAllele=offAllele;
-                pop2[nNewCell].nParent_id=parent;
-                pop2[nNewCell].nWeight=nSeedWeight;
+                m_vPop2[nNewCell].nAllele=offAllele;
+                m_vPop2[nNewCell].nParent_id=parent;
+                m_vPop2[nNewCell].nWeight=nSeedWeight;
             }
         }
     }
 }
 
 void Population::transIndices(int nTransPos)
+//create a vector of the indices in the trasect based on transect postion nTransPos.
 {
-    cout << "trans" << nTransPos << endl;
-    int i0 = nTransPos * m_nMaxY + 0;
+    int i0 = nTransPos * m_nMaxY + 0; //index of first position in row[nTransPos]
     for(int yyy=0; yyy<m_nMaxY; yyy++)
     {
-        m_vtransect.push_back(i0+yyy);
-        cout << i0+yyy << endl;
+        m_vtransIndex.push_back(i0+yyy);
     }
 
 
@@ -147,13 +146,42 @@ void Population::transIndices(int nTransPos)
 
 
 
-int minDist(pair<int,int> pos, int n)
+int Population::minDist(int a, int b)
+//calculate the minimum distance between two indices.
 {
-    int d1 = mod((pos.first-pos.second),n); //n is m_nMaxX
-    int d2 = mod((pos.second-pos.first),n);
+    int d1 = mod((a-b),m_nMaxX);
+    int d2 = mod((b-a),m_nMaxX);
     return min(d1,d2);
 }
 
+
+/*
+void Population::samplePop()
+{
+    vector<int> vDistances(floor(m_nMaxX/2.0));
+
+    for(iii=0; iii<m_nMaxX; iii++)
+    {
+        for(jjj=1; jjj<(m_nMaxX-iii); jjj++)
+        {
+            if(m_vPop2[m_vtransIndex[i]]=m_vPop2[m_vtransIndex[i+j]])
+                vDistances[minDist(i,i+j)]++
+        }
+    }
+}
+
+
+*/
+
+
+
+//create a vector to store every possible distance size: floor(xmax/2)
+//for i=0 to xmax-1:
+//  for j=1 to xmax-i:
+//      if trans[i] == trans[i+j]
+//          k=minDist(i,i+j,xmax)
+//          vec[k] += 1
+//then iterate through the vector and divide the count by: xmax.
 
 
 

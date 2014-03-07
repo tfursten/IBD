@@ -35,20 +35,24 @@ private:
 	int m_nMutCount;
 	int m_nIndividuals;
 	xorshift64 m_myrand;
-	std::vector<individual> pop1;
-	std::vector<individual> pop2;
-	std::vector<int> m_vtransect;
+	std::vector<individual> m_vPop1;
+	std::vector<individual> m_vPop2;
+	std::vector<int> m_vtransIndex;
 	int m_nGenerations;
 	int m_nBurnIn;
 	int m_nAlleleID;
 	void setMutCount();
-	int dispersal(int x, int y);
+	int offDispersal(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
-	void transIndices(int nTransPos);
+	void transIndices(int nTransPos); //indices for transect
+	int minDist(int a, int b);
+	void samplePop();
+
 public:
     void initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut, unsigned int seed, int nTransPos);
 	void evolve(int m_nGenerations, int m_nBurnIn);
+
 
 
 

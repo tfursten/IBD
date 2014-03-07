@@ -135,6 +135,7 @@ int main(int ac, char** av)
 	pop.initialize(nMaxX,nMaxY,nOffspring,1/fSigma,1/dMut,seed,nTransPos);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
+//	cout<< 5/2 << endl;
 
 /*
     ofstream fout(outfile);
