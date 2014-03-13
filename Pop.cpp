@@ -17,8 +17,6 @@ inline unsigned int create_random_seed() {
     return (v == 0) ? 0x6a27d958 : (v & 0x7FFFFFFF); // return at most a 31-bit seed
 }
 
-
-
 inline int mod(int a, int b)
 /*the implementation of the % operator and fmod computes the remainder of division and is defined to keep the same sign as the dividend.
 Ex: 2%5 = 2 but -2%5 = -2 instead of 3.
@@ -28,7 +26,25 @@ Ex: 2%5 = 2 but -2%5 = -2 instead of 3.
     return (r < 0? r+b : r);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut,unsigned int seed, int nTransPos)
+inline pair<int,int> i2xy(int i, int x, int y)
+{
+    return make_pair((i/x),(i%y));
+}
+
+
+int minDist(int a, int b, int max)
+//calculate the minimum distance between two indices.
+{
+    int d1 = mod((a-b),max);
+    int d2 = mod((b-a),max);
+    return min(d1,d2);
+}
+
+
+
+
+
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut,unsigned int seed, int nTransPos, int nSample)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
@@ -37,22 +53,57 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     m_dMut = dMut;
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
-    transIndices(nTransPos);
+    m_fAvgSig = 0.0;
     setMutCount();
+    ostringstream out;
+    m_nSample = nSample;
+
+    //set Random seed
     if (seed==0)
         {
         seed = create_random_seed();
-        cout << "Using Generated PRNG Seed: "<< seed << endl;
+        out << "Using Generated PRNG Seed: "<< seed << endl;
         }
     m_myrand.seed(seed);
 
-    // Initialize Population
+    // Initialize Population: each individual has unique allele
     for(int iii=1; iii<=m_nIndividuals; iii++)
     {
         m_vPop1.push_back(individual(1,iii,iii-1));
         m_vPop2.push_back(individual(0,0,0));
     }
 
+    //create a vector of the indices in the trasect based on transect postion nTransPos.
+    int i0 = nTransPos * m_nMaxY;
+    for(int yyy=0; yyy<m_nMaxY; yyy++)
+    {
+        m_vtransIndex.push_back(i0+yyy);
+    }
+
+
+    //keep running total of pIBD for each distance bin over every sampled generation
+    for(int iii=0; iii<m_nMaxY/2; iii++)
+    {
+        m_vAvgIBD.push_back(0.0);
+    }
+
+    //vector containing the minimum distance for each pair of locations in transect
+    for(int iii=0; iii<m_nMaxY;iii++)
+    {
+        for(int jjj=1; jjj<(m_nMaxY-iii);jjj++)
+        {
+            m_vtransDist.push_back(minDist(iii,iii+jjj,m_nMaxY));
+        }
+    }
+
+    //vector containing the total number of samples in each distance bin.
+    for(int iii=1; iii<=m_nMaxY/2; iii++)
+    {
+        m_DistCount.push_back(count(m_vtransDist.begin(), m_vtransDist.end(), iii));
+    }
+
+    cout << out.str();
+    mout << out.str();
 }
 
 
@@ -63,6 +114,8 @@ void Population::setMutCount()
 }
 
 
+//Each mutational event creates a new allele unlike any other allele currently in the population
+//so that identity in state for two or more alleles is always an indication of idenity by descent.
 int Population::mutation(int allele)
 {
     if (--m_nMutCount > 0)
@@ -79,6 +132,7 @@ int Population::mutation(int allele)
 
 void Population::evolve(int m_nBurnIn, int m_nGenerations)
 {
+    //run burn-in period
     for(int ggg=0;ggg<m_nBurnIn;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
@@ -88,14 +142,31 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         std::swap(m_vPop1,m_vPop2);
     }
 
+
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
         {
             step(parent);
         }
+        mout << "pIBD Gen " << ggg << ": ";
+
+        if (ggg % m_nSample == 0)
+        {
+            samplePop();
+        }
+
         std::swap(m_vPop1,m_vPop2);
     }
+
+    mout << "Average IBD: " ;
+    for(int iii=0; iii<m_nMaxY; iii++)
+    {
+        mout << m_vAvgIBD[iii]/(double)m_nGenerations << "\t";
+    }
+    mout << "\nAverage Sigma2: " <<m_fAvgSig/(float)m_nGenerations << endl;
+    cout <<"Done"<< endl;
+
 }
 
 int Population::offDispersal(int x, int y)
@@ -131,57 +202,68 @@ void Population::step(int parent)
     }
 }
 
-void Population::transIndices(int nTransPos)
-//create a vector of the indices in the trasect based on transect postion nTransPos.
-{
-    int i0 = nTransPos * m_nMaxY + 0; //index of first position in row[nTransPos]
-    for(int yyy=0; yyy<m_nMaxY; yyy++)
-    {
-        m_vtransIndex.push_back(i0+yyy);
-    }
-
-
-}
 
 
 
 
-int Population::minDist(int a, int b)
-//calculate the minimum distance between two indices.
-{
-    int d1 = mod((a-b),m_nMaxX);
-    int d2 = mod((b-a),m_nMaxX);
-    return min(d1,d2);
-}
 
 
-/*
 void Population::samplePop()
 {
-    vector<int> vDistances(floor(m_nMaxX/2.0));
-
-    for(iii=0; iii<m_nMaxX; iii++)
+    vector<int> vIBD(m_nMaxY/2);
+    int kkk = 0;
+    for(int iii=0; iii<m_nMaxY; iii++)
     {
-        for(jjj=1; jjj<(m_nMaxX-iii); jjj++)
+        if(m_vPop2[m_vtransIndex[iii]].nWeight)
         {
-            if(m_vPop2[m_vtransIndex[i]]=m_vPop2[m_vtransIndex[i+j]])
-                vDistances[minDist(i,i+j)]++
+            for(int jjj=1; jjj<(m_nMaxY-iii); jjj++)
+            {
+                if(m_vPop2[m_vtransIndex[iii+jjj]].nWeight)
+                {
+                    if(m_vPop2[m_vtransIndex[iii]].nAllele==m_vPop2[m_vtransIndex[iii+jjj]].nAllele)
+                    {
+                        int dist = m_vtransDist[kkk];
+                        vIBD[dist-1]++;
+                        kkk++;
+                    }
+                    else kkk++;
+                }
+                else kkk++;
+            }
         }
+        else kkk+=(m_nMaxY-iii-1);
     }
+
+
+
+    for(int iii=0; iii<m_nMaxY/2;iii++)
+    {
+        double fpIBD =  (double)vIBD[iii] / (double)m_DistCount[iii];
+        mout << fpIBD << "\t";
+        m_vAvgIBD[iii] += fpIBD;
+    }
+    mout << endl;
+
+
+
+    int nSumDist2 = 0;
+    for(int iii=0; iii<m_nMaxY; iii++)
+    {
+        pair<int,int> npXY = i2xy(m_vPop2[m_vtransIndex[iii]].nParent_id, m_nMaxX, m_nMaxY);
+        pair<int,int> niXY = i2xy(m_vtransIndex[iii], m_nMaxX, m_nMaxY);
+        nSumDist2 += (pow(minDist(npXY.first,niXY.first,m_nMaxX),2) + pow(minDist(npXY.second,niXY.second,m_nMaxY),2));
+    }
+    float nSigma2 = (nSumDist2/(float)m_nMaxY) * 0.5;
+    mout << "sigma2: " << nSigma2 << endl << endl;
+    m_fAvgSig += nSigma2;
+
+
 }
 
 
-*/
 
 
 
-//create a vector to store every possible distance size: floor(xmax/2)
-//for i=0 to xmax-1:
-//  for j=1 to xmax-i:
-//      if trans[i] == trans[i+j]
-//          k=minDist(i,i+j,xmax)
-//          vec[k] += 1
-//then iterate through the vector and divide the count by: xmax.
 
 
 

@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <cmath>
 #include <unistd.h>
 #include "xorshift64.h"
@@ -24,6 +27,8 @@ struct individual
         }
 };
 
+
+
 class Population
 {
 private:
@@ -34,23 +39,29 @@ private:
 	double m_dMut;
 	int m_nMutCount;
 	int m_nIndividuals;
+	int m_nSample;
 	xorshift64 m_myrand;
+	std::ofstream & mout;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
 	std::vector<int> m_vtransIndex;
+	std::vector<int> m_vtransDist;
+	std::vector<int> m_DistCount;
+	std::vector<double> m_vAvgIBD;
 	int m_nGenerations;
 	int m_nBurnIn;
 	int m_nAlleleID;
+	float m_fAvgSig;
 	void setMutCount();
 	int offDispersal(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
-	void transIndices(int nTransPos); //indices for transect
-	int minDist(int a, int b);
 	void samplePop();
 
+
 public:
-    void initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut, unsigned int seed, int nTransPos);
+    Population(std::ofstream &o): mout(o) {};
+    void initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut, unsigned int seed, int nTransPos, int nSample);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 
 
