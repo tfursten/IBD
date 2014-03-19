@@ -45,8 +45,6 @@ std::string Dispersal::getName()
     return name;
 }
 
-
-
 double Dispersal::dist_exponential(xorshift64& rand, float sigma)
 {
     float param = sigma;
@@ -58,20 +56,19 @@ double Dispersal::dist_triangular(xorshift64& rand, float sigma)
     //where xmin = 0 and xmax = c
     float param = 2*sigma;
     double u = rand.get_double52();
-    return sqrt(param*param*u);
+    return param*sqrt(u);
 }
 
 double Dispersal::dist_halfNormal(xorshift64& rand, float sigma)
 {
-    double param = (double)sigma * sqrt(2);
+    double param = (double)sigma * sqrt(2.0);
     return rand_abs_normal(rand, 0.0, param);
 }
 
 double Dispersal::dist_rayleigh(xorshift64& rand, float sigma)
 {
     float param = sigma;
-    double u = rand.get_double52();
-    return param * sqrt(-2.0 * log(u));
+    return param * sqrt(2.0 * rand_exp(rand));
 }
 
 
