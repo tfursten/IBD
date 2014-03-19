@@ -1,6 +1,7 @@
 #include "Pop.h"
 
 
+
 //urandom dev/urandom if it exists use it else use create random seed
 using namespace std;
 // random seed generator
@@ -43,8 +44,7 @@ int minDist(int a, int b, int max)
 
 
 
-
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut,unsigned int seed, int nTransPos, int nSample)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
@@ -57,6 +57,8 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     setMutCount();
     ostringstream out;
     m_nSample = nSample;
+    disp = dist.getFunction(dist_name);
+    out << "Dispersal distribution set to " << dist.getName() << endl;
 
     //set Random seed
     if (seed==0)
@@ -72,6 +74,8 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
         m_vPop1.push_back(individual(1,iii,iii-1));
         m_vPop2.push_back(individual(0,0,0));
     }
+
+    //Make separate class for transect
 
     //create a vector of the indices in the trasect based on transect postion nTransPos.
     int i0 = nTransPos * m_nMaxY;
@@ -103,8 +107,10 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     }
 
     cout << out.str();
-    mout << out.str();
+    mout << out.str() << "#" << endl;
+
 }
+
 
 
 
@@ -167,12 +173,14 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
     mout << "\nAverage Sigma2: " <<m_fAvgSig/(float)m_nGenerations << endl;
     cout <<"Done"<< endl;
 
+
+
 }
 
-int Population::offDispersal(int x, int y)
+int Population::dispersal(int x, int y)
 {
     double a = m_myrand.get_double52() * 2.0 * M_PI;
-    double r = rand_exp(m_myrand,m_fSigma);
+    double r = (dist.*disp)(m_myrand,m_fSigma);
     int newX = mod(int(floor(r*cos(a)+x+0.5)), m_nMaxX);
     int newY = mod(int(floor(r*sin(a)+y+0.5)), m_nMaxY);
     return newX * m_nMaxY + newY;
@@ -188,7 +196,7 @@ void Population::step(int parent)
         int nY = parent%m_nMaxY;
         for (int off=0; off<m_nOffspring; off++)
         {
-            int nNewCell = offDispersal(nX,nY);
+            int nNewCell = dispersal(nX,nY);
             unsigned int nSeedWeight = m_myrand.get_uint32();
             unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
             int offAllele = mutation(m_vPop1[parent].nAllele);
@@ -201,10 +209,6 @@ void Population::step(int parent)
         }
     }
 }
-
-
-
-
 
 
 

@@ -13,8 +13,7 @@ int main(int ac, char** av)
 
     enum Distribution {EXPONENTIAL, GAUSSIAN, TRIANGULAR};
     Distribution disp;
-    string dist,infile;
-    string outfileName;
+    string dist_name, infile, outfileName;
 
     ostringstream out;
     try
@@ -31,13 +30,13 @@ int main(int ac, char** av)
             ("generations,g", po::value<int>(&nGenerations)->default_value(10), "Set number of Generations to run after burn-in")
             ("offspring,o", po::value<int>(&nOffspring)->default_value(10), "Set number of offspring per individual")
             ("mut,m", po::value<double>(&dMut)->default_value(0.0), "Set mutation rate")
-            ("distribution,d", po::value<string>(&dist), "Set Dispersal Distribution")
+            ("distribution,d", po::value<string>(&dist_name)->default_value("exponential"), "Set Dispersal Distribution")
             ("sigma,s", po::value<float>(&fSigma)->default_value(2.0), "Set dispersal parameter")
             ("burn,b", po::value<int>(&nBurnIn)->default_value(0),"Set Burn-in Period")
             ("sample", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
             ("output_file, out", po::value<string>(&outfileName)->default_value(string("data.txt")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
-            ("transect", po::value<int>(&nTransPos)->default_value(-1),"Set position of transect in X axis. Default: ~Center")
+            ("transect", po::value<int>(&nTransPos)->default_value(-1),"Set position of transect in X axis. Default: Center")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -91,29 +90,14 @@ int main(int ac, char** av)
         << "Y dimension set to " << nMaxY << ".\n"
         << "Run for " << nGenerations << " generations.\n"
         << "Burn " << nBurnIn << " generation(s).\n"
-        << "Collect data every " << nSample << "Generation(s).\n"
+        << "Collect data every " << nSample << " Generation(s).\n"
         << "Number of Offspring set to " << nOffspring << ".\n"
         << "Mutation rate set to " << dMut<< ".\n";
 
 
-        if (vm.count("Distribution"))
-            {
-            static std::pair<const char*, Distribution> pairs[] = {{"EXPONENTIAL", EXPONENTIAL},{"TRIANGULAR", TRIANGULAR},{"GAUSSIAN",GAUSSIAN}};
-            static bool good = false;
-            for (int iii=0; iii<sizeof pairs/sizeof pairs[0]; ++iii)
-            {
-                if (vm["Distribution"].as<string>()==pairs[iii].first)
-                    {
-                    out << "The dispersal distribution is " << vm["Distribution"].as<string>() << ".\n";
-                    disp = pairs[iii].second;
-                    good = true;
-                    }
-            }
-            if (!good)
-                {
-                throw std::invalid_argument("Error: Distribution not found\n");
-                }
-            }
+
+        assert(fSigma>0);
+        assert(nTransPos <= nMaxX);
         out << "Dispersal parameter set to " << fSigma << ".\n";
 
         if (seed)
@@ -140,7 +124,7 @@ int main(int ac, char** av)
 	//Initialize Population
 
 	Population pop(fout);
-	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,1/dMut,seed,nTransPos, nSample);
+	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,1/dMut,seed,nTransPos, nSample, dist_name);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 

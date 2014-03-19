@@ -52,6 +52,11 @@ public:
 		return static_cast<uint32_t>(get_raw() >> 32);
 	}
 	
+	// Uniform [0,n) with 64-bits of precision
+	uint64_t get_uint(uint64_t n) {
+		return get_uint64() % n;
+	}
+
 	// Uniform [0,1)
 	double get_double53() {
 		union { uint64_t u; double d; } a;
@@ -70,8 +75,14 @@ public:
 		return a.d-q;
 	}
 	
+	// Uniform [0,max)
 	uint64_t operator()() {
 		return get_raw();
+	}
+	
+	// Uniform [0,n) with 64-bits of precision
+	uint64_t operator()(uint64_t n) {
+		return get_uint(n);
 	}
 	
 private:
