@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "disperse.h"
 
 
@@ -48,7 +50,7 @@ std::string Dispersal::getName()
 double Dispersal::dist_exponential(xorshift64& rand, float sigma)
 {
     float param = sigma;
-    return rand_exp(rand, param);
+    return rand_exp(rand, 1.0/param);
 }
 
 double Dispersal::dist_triangular(xorshift64& rand, float sigma)

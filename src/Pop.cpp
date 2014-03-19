@@ -50,7 +50,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     m_nMaxY = nMaxY;
     m_nOffspring = nOffspring;
     m_fSigma = fSigma;
-    m_dMut = dMut;
+    m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
     m_fAvgSig = 0.0;
