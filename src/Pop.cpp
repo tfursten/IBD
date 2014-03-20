@@ -24,31 +24,26 @@ inline unsigned int create_random_seed() {
     return (v == 0) ? 0x6a27d958 : (v & 0x7FFFFFFF); // return at most a 31-bit seed
 }
 
-inline int mod(int a, int b)
-/*the implementation of the % operator and fmod computes the remainder of division and is defined to keep the same sign as the dividend.
-Ex: 2%5 = 2 but -2%5 = -2 instead of 3.
-*/
+inline pair<int,int> i2xy(int i, int mx, int my)
 {
-    int r = a % b;
-    return (r < 0? r+b : r);
+    return make_pair((i/my),(i%my));
 }
 
-inline pair<int,int> i2xy(int i, int x, int y)
-{
-    return make_pair((i/x),(i%y));
+inline int xy2i(int x, int y, int mx, int my) {
+	return x*my+y;
 }
 
+inline int xy2i(pair<int,int> xy, int mx, int my) {
+	return xy2i(xy.first,xy.second,mx,my);
+}
 
 int minDist(int a, int b, int max)
 //calculate the minimum distance between two indices.
 {
-    int d1 = mod((a-b),max);
-    int d2 = mod((b-a),max);
-    return min(d1,d2);
+    int d1 = (a-b+max) % max;
+    int d2 = (b-a+max) % max;
+    return std::min(d1,d2);
 }
-
-
-
 
 void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name)
 {
@@ -117,9 +112,6 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
 
 }
 
-
-
-
 void Population::setMutCount()
 {
     m_nMutCount = floor(rand_exp(m_myrand, m_dMut));
@@ -178,24 +170,26 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
     }
     mout << "\nAverage Sigma2: " <<m_fAvgSig/(float)m_nGenerations << endl;
     cout <<"Done"<< endl;
+}
 
-
-
+int wrap_around(int x, int w) {
+	return ((x % w) + w) % w;
 }
 
 int Population::dispersal(int x, int y)
 {
     double a = m_myrand.get_double52() * 2.0 * M_PI;
     double r = dist(m_myrand,m_dSigma);
-    int newX = mod(int(floor(r*cos(a)+x+0.5)), m_nMaxX);
-    int newY = mod(int(floor(r*sin(a)+y+0.5)), m_nMaxY);
-    return newX * m_nMaxY + newY;
+    int newX = wrap_around(static_cast<int>(floor(r*cos(a)+x+0.5)), m_nMaxX);
+    int newY = wrap_around(static_cast<int>(floor(r*sin(a)+y+0.5)), m_nMaxY);
+    
+    return xy2i(newX,newY, m_nMaxX,m_nMaxY);
 }
 
 void Population::step(int parent)
 {
     unsigned int &parentHere = m_vPop1[parent].nWeight;
-    if (parentHere)
+    if (parentHere > 0)
     {
         parentHere=0;
         int nX = parent/m_nMaxX;
@@ -215,8 +209,6 @@ void Population::step(int parent)
         }
     }
 }
-
-
 
 void Population::samplePop()
 {
@@ -267,17 +259,5 @@ void Population::samplePop()
     mout << "sigma2: " << nSigma2 << endl << endl;
     m_fAvgSig += nSigma2;
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
 

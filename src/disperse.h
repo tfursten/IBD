@@ -7,7 +7,6 @@
 #include "rexp.h"
 #include "rnormal.h"
 
-
 template<class A, class B, int N>
 int key_switch(A &ss, const B (&key)[N])
 {
@@ -20,7 +19,6 @@ int key_switch(A &ss, const B (&key)[N])
     return (int) -1;
 
 }
-
 
 class Dispersal
 {
