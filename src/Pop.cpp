@@ -44,12 +44,12 @@ int minDist(int a, int b, int max)
 
 
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
     m_nOffspring = nOffspring;
-    m_fSigma = fSigma;
+    m_dSigma = dSigma;
     m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
@@ -57,7 +57,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, 
     setMutCount();
     ostringstream out;
     m_nSample = nSample;
-    disp = dist.getFunction(dist_name);
+    dist.initialize(dist_name);
     out << "Dispersal distribution set to " << dist.getName() << endl;
 
     //set Random seed
@@ -180,7 +180,7 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
 int Population::dispersal(int x, int y)
 {
     double a = m_myrand.get_double52() * 2.0 * M_PI;
-    double r = (dist.*disp)(m_myrand,m_fSigma);
+    double r = dist(m_myrand,m_dSigma);
     int newX = mod(int(floor(r*cos(a)+x+0.5)), m_nMaxX);
     int newY = mod(int(floor(r*sin(a)+y+0.5)), m_nMaxY);
     return newX * m_nMaxY + newY;

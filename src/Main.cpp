@@ -12,7 +12,6 @@ int main(int ac, char** av)
     static float fSigma;
 
     enum Distribution {EXPONENTIAL, GAUSSIAN, TRIANGULAR};
-    Distribution disp;
     string dist_name, infile, outfileName;
 
     ostringstream out;
@@ -124,7 +123,7 @@ int main(int ac, char** av)
 	//Initialize Population
 
 	Population pop(fout);
-	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,1/dMut,seed,nTransPos, nSample, dist_name);
+	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 
