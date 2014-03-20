@@ -6,13 +6,15 @@ int main(int ac, char** av)
 	namespace po = boost::program_options;
     using namespace std;
 
+	cout << ((-2+3) % 3) << endl;
+	cout << ((2+3) % 3) << endl;
+
     static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn, nTransPos, nSample;
     unsigned int seed;
     static double dMut;
     static float fSigma;
 
     enum Distribution {EXPONENTIAL, GAUSSIAN, TRIANGULAR};
-    Distribution disp;
     string dist_name, infile, outfileName;
 
     ostringstream out;
@@ -124,7 +126,7 @@ int main(int ac, char** av)
 	//Initialize Population
 
 	Population pop(fout);
-	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,1/dMut,seed,nTransPos, nSample, dist_name);
+	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 

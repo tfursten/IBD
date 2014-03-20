@@ -8,11 +8,10 @@
 #include <sstream>
 #include <cmath>
 #include <unistd.h>
+
 #include "xorshift64.h"
 #include "rexp.h"
 #include "disperse.h"
-
-
 
 struct individual
 {
@@ -20,12 +19,11 @@ struct individual
     int nAllele;
     int nParent_id;
 
-    individual(unsigned int weight, int allele, int parent_id)
-        {
-            nWeight = weight;
-            nAllele = allele;
-            nParent_id = parent_id;
-        }
+    individual(unsigned int weight, int allele, int parent_id) {
+		nWeight = weight;
+        nAllele = allele;
+        nParent_id = parent_id;
+    }
 };
 
 
@@ -35,14 +33,13 @@ private:
     int m_nMaxX;
     int m_nMaxY;
     int m_nOffspring;
-    float m_fSigma;
+    double m_dSigma;
 	double m_dMut;
 	int m_nMutCount;
 	int m_nIndividuals;
 	int m_nSample;
 	xorshift64 m_myrand;
 	Dispersal dist;
-	Dispersal::fptr disp;
 	std::ofstream & mout;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
@@ -54,26 +51,17 @@ private:
 	int m_nBurnIn;
 	int m_nAlleleID;
 	float m_fAvgSig;
+	
 	void setMutCount();
 	int dispersal(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
 	void samplePop();
 
-
-
 public:
     Population(std::ofstream &o): mout(o) {};
-    void initialize(int nMaxX, int nMaxY, int nOffspring, float fSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name);
+    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name);
 	void evolve(int m_nGenerations, int m_nBurnIn);
-
-
-
-
 };
-
-
-
-
 
 #endif // POP_H_INCLUDED
