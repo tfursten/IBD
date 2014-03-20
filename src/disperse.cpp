@@ -5,8 +5,8 @@
 
 double Dispersal::dist_exponential(xorshift64& rand, double sigma)
 {
-    double param = sigma;
-    return rand_exp(rand, 1.0/param);
+    double param = 1.0/sigma;
+    return rand_exp(rand, param);
 }
 
 double Dispersal::dist_triangular(xorshift64& rand, double sigma)
