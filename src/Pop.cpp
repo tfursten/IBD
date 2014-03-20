@@ -1,20 +1,26 @@
+#include <fstream>
+
 #include "Pop.h"
-
-
 
 //urandom dev/urandom if it exists use it else use create random seed
 using namespace std;
 // random seed generator
 inline unsigned int create_random_seed() {
-    unsigned int v = static_cast<unsigned int>(getpid());
-    v += ((v << 15) + (v >> 3)) + 0x6ba658b3; // Spread 5-decimal PID over 32-bit number
-    v^=(v<<17);
-    v^=(v>>13);
-    v^=(v<<5);
-    v += static_cast<unsigned int>(time(NULL));
-    v^=(v<<17);
-    v^=(v>>13);
-    v^=(v<<5);
+	unsigned int v;
+	ifstream urandom("/dev/urandom", ios::in|ios::binary);
+	if(urandom.good()) {
+		urandom >> v;
+	} else {
+		v = static_cast<unsigned int>(getpid());
+		v += ((v << 15) + (v >> 3)) + 0x6ba658b3; // Spread 5-decimal PID over 32-bit number
+		v^=(v<<17);
+		v^=(v>>13);
+		v^=(v<<5);
+		v += static_cast<unsigned int>(time(NULL));
+		v^=(v<<17);
+		v^=(v>>13);
+		v^=(v<<5);
+	}
     return (v == 0) ? 0x6a27d958 : (v & 0x7FFFFFFF); // return at most a 31-bit seed
 }
 
