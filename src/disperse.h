@@ -59,7 +59,11 @@ public:
 	double dist_triangular(xorshift64& rand, double sigma);
 	double dist_halfNormal(xorshift64& rand, double sigma);
 	double dist_rayleigh(xorshift64& rand, double sigma);
-
+	
+	Dispersal() {
+		initialize("exponential");
+	}
+	
 private:
     std::string name;
     fptr op;
