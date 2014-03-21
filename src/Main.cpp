@@ -32,10 +32,10 @@ int main(int ac, char** av)
             ("distribution,d", po::value<string>(&dist_name)->default_value("exponential"), "Set Dispersal Distribution")
             ("sigma,s", po::value<float>(&fSigma)->default_value(2.0), "Set dispersal parameter")
             ("burn,b", po::value<int>(&nBurnIn)->default_value(0),"Set Burn-in Period")
-            ("sample", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
-            ("output_file, out", po::value<string>(&outfileName)->default_value(string("data.txt")),"Output File Name")
+            ("sample,t", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
+            ("output_file,f", po::value<string>(&outfileName)->default_value(string("data.txt")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
-            ("transect", po::value<int>(&nTransPos)->default_value(-1),"Set position of transect in X axis. Default: Center")
+            ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis. Default: Center")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -101,8 +101,6 @@ int main(int ac, char** av)
 
         if (seed)
             out << "User set PRNG seed to: " << seed << ".\n";
-        if (nTransPos == -1)
-            nTransPos = floor(nMaxX/2);
         out << "Transect position is set to: " << nTransPos << ".\n";
         cout << "Data saved to: " << outfileName << endl;
 
