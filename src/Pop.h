@@ -38,6 +38,7 @@ private:
 	int m_nMutCount;
 	int m_nIndividuals;
 	int m_nSample;
+	int m_nTransPos;
 	xorshift64 m_myrand;
 	Dispersal dist;
 	std::ofstream & mout;
@@ -50,13 +51,13 @@ private:
 	int m_nGenerations;
 	int m_nBurnIn;
 	int m_nAlleleID;
-	float m_fAvgSig;
+	double m_fAvgSig;
 	
 	void setMutCount();
 	int dispersal(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
-	void samplePop();
+	void samplePop(int gen);
 
 public:
     Population(std::ofstream &o): mout(o) {};

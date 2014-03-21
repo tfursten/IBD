@@ -6,9 +6,6 @@ int main(int ac, char** av)
 	namespace po = boost::program_options;
     using namespace std;
 
-	cout << ((-2+3) % 3) << endl;
-	cout << ((2+3) % 3) << endl;
-
     static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn, nTransPos, nSample;
     unsigned int seed;
     static double dMut;
