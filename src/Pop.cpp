@@ -26,23 +26,18 @@ inline unsigned int create_random_seed() {
 
 inline pair<int,int> i2xy(int i, int mx, int my)
 {
+    assert(0 <= i && i < mx*my);
     return make_pair((i/my),(i%my));
 }
 
 inline int xy2i(int x, int y, int mx, int my) {
+	assert(0 <= x && x < mx);
+	assert(0 <= y && y < my);
 	return x*my+y;
 }
 
 inline int xy2i(pair<int,int> xy, int mx, int my) {
 	return xy2i(xy.first,xy.second,mx,my);
-}
-
-int minDist(int a, int b, int max)
-//calculate the minimum distance between two indices.
-{
-    int d1 = (a-b+max) % max;
-    int d2 = (b-a+max) % max;
-    return std::min(d1,d2);
 }
 
 void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name)
@@ -54,7 +49,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
-    m_fAvgSig = 0.0;
+    m_nTransPos = nTransPos;
     setMutCount();
     ostringstream out;
     m_nSample = nSample;
@@ -62,58 +57,24 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     out << "Dispersal distribution set to " << dist.getName() << endl;
 
     //set Random seed
-    if (seed==0)
-        {
+    if (seed==0) {
         seed = create_random_seed();
         out << "Using Generated PRNG Seed: "<< seed << endl;
-        }
+    }
     m_myrand.seed(seed);
 
     // Initialize Population: each individual has unique allele
-    for(int iii=1; iii<=m_nIndividuals; iii++)
-    {
-        m_vPop1.push_back(individual(1,iii,iii-1));
-        m_vPop2.push_back(individual(0,0,0));
+    for(int iii=0; iii<m_nIndividuals; iii++) {
+        m_vPop1.emplace_back(1,iii+1,iii);
     }
-
-    //Make separate class for transect
-
-    //create a vector of the indices in the trasect based on transect postion nTransPos.
-    int i0 = nTransPos * m_nMaxY;
-    for(int yyy=0; yyy<m_nMaxY; yyy++)
-    {
-        m_vtransIndex.push_back(i0+yyy);
-    }
-
-
-    //keep running total of pIBD for each distance bin over every sampled generation
-    for(int iii=0; iii<m_nMaxY/2; iii++)
-    {
-        m_vAvgIBD.push_back(0.0);
-    }
-
-    //vector containing the minimum distance for each pair of locations in transect
-    for(int iii=0; iii<m_nMaxY;iii++)
-    {
-        for(int jjj=1; jjj<(m_nMaxY-iii);jjj++)
-        {
-            m_vtransDist.push_back(minDist(iii,iii+jjj,m_nMaxY));
-        }
-    }
-
-    //vector containing the total number of samples in each distance bin.
-    for(int iii=1; iii<=m_nMaxY/2; iii++)
-    {
-        m_DistCount.push_back(count(m_vtransDist.begin(), m_vtransDist.end(), iii));
-    }
+    m_vPop2.assign(m_nIndividuals, individual(0,0,0));
 
     cout << out.str();
     mout << out.str() << "#" << endl;
 
 }
 
-void Population::setMutCount()
-{
+void Population::setMutCount() {
     m_nMutCount = floor(rand_exp(m_myrand, m_dMut));
 }
 
@@ -123,15 +84,9 @@ void Population::setMutCount()
 int Population::mutation(int allele)
 {
     if (--m_nMutCount > 0)
-    {
         return allele;
-    }
-
-    else
-    {
-        setMutCount();
-        return m_nAlleleID++;
-    }
+    setMutCount();
+    return m_nAlleleID++;
 }
 
 void Population::evolve(int m_nBurnIn, int m_nGenerations)
@@ -150,26 +105,19 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
-        {
             step(parent);
-        }
-        mout << "pIBD Gen " << ggg << ": ";
-
         if (ggg % m_nSample == 0)
-        {
-            samplePop();
-        }
-
+           samplePop(ggg);
         std::swap(m_vPop1,m_vPop2);
     }
 
+	/*
     mout << "Average IBD: " ;
     for(int iii=0; iii<m_nMaxY; iii++)
-    {
-        mout << m_vAvgIBD[iii]/(double)m_nGenerations << "\t";
-    }
-    mout << "\nAverage Sigma2: " <<m_fAvgSig/(float)m_nGenerations << endl;
+        mout << m_vAvgIBD[iii]/m_nGenerations << "\t";
+    mout << "\nAverage Sigma2: " << m_dAvgSig/m_nGenerations << endl;
     cout <<"Done"<< endl;
+    */
 }
 
 int wrap_around(int x, int w) {
@@ -180,8 +128,10 @@ int Population::dispersal(int x, int y)
 {
     double a = m_myrand.get_double52() * 2.0 * M_PI;
     double r = dist(m_myrand,m_dSigma);
-    int newX = wrap_around(static_cast<int>(floor(r*cos(a)+x+0.5)), m_nMaxX);
-    int newY = wrap_around(static_cast<int>(floor(r*sin(a)+y+0.5)), m_nMaxY);
+    double dX = floor(r*cos(a)+x+0.5);
+    double dY = floor(r*sin(a)+y+0.5);
+    int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
+    int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
     
     return xy2i(newX,newY, m_nMaxX,m_nMaxY);
 }
@@ -189,75 +139,71 @@ int Population::dispersal(int x, int y)
 void Population::step(int parent)
 {
     unsigned int &parentHere = m_vPop1[parent].nWeight;
-    if (parentHere > 0)
+    if(parentHere == 0)
+    	return;
+    parentHere=0;
+    pair<int,int> xy = i2xy(parent,m_nMaxX,m_nMaxY);
+    int nX = xy.first;
+    int nY = xy.second;
+    for (int off=0; off<m_nOffspring; off++)
     {
-        parentHere=0;
-        int nX = parent/m_nMaxX;
-        int nY = parent%m_nMaxY;
-        for (int off=0; off<m_nOffspring; off++)
+        int nNewCell = dispersal(nX,nY);
+        unsigned int nSeedWeight = m_myrand.get_uint32();
+        unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
+        int offAllele = mutation(m_vPop1[parent].nAllele);
+        if (nSeedWeight > nCellWeight)
         {
-            int nNewCell = dispersal(nX,nY);
-            unsigned int nSeedWeight = m_myrand.get_uint32();
-            unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
-            int offAllele = mutation(m_vPop1[parent].nAllele);
-            if (nSeedWeight > nCellWeight)
-            {
-                m_vPop2[nNewCell].nAllele=offAllele;
-                m_vPop2[nNewCell].nParent_id=parent;
-                m_vPop2[nNewCell].nWeight=nSeedWeight;
-            }
+            m_vPop2[nNewCell].nAllele=offAllele;
+            m_vPop2[nNewCell].nParent_id=parent;
+            m_vPop2[nNewCell].nWeight=nSeedWeight;
         }
     }
 }
 
-void Population::samplePop()
+double minEuclideanDist2(int i, int j, int mx, int my) {
+	auto xy1 = i2xy(i,mx,my);
+	auto xy2 = i2xy(j,mx,my);
+	double dx = abs(1.0*(xy1.first - xy2.first));
+	double dy = abs(1.0*(xy1.second - xy2.second));
+	dx = (dx < mx*0.5) ? dx : mx-dx;
+	dy = (dy < my*0.5) ? dy : my-dy;
+	return (dx*dx+dy*dy);
+}
+
+void Population::samplePop(int gen)
 {
-    vector<int> vIBD(m_nMaxY/2);
-    int kkk = 0;
-    for(int iii=0; iii<m_nMaxY; iii++)
-    {
-        if(m_vPop2[m_vtransIndex[iii]].nWeight)
-        {
-            for(int jjj=1; jjj<(m_nMaxY-iii); jjj++)
-            {
-                if(m_vPop2[m_vtransIndex[iii+jjj]].nWeight)
-                {
-                    if(m_vPop2[m_vtransIndex[iii]].nAllele==m_vPop2[m_vtransIndex[iii+jjj]].nAllele)
-                    {
-                        int dist = m_vtransDist[kkk];
-                        vIBD[dist-1]++;
-                        kkk++;
-                    }
-                    else kkk++;
-                }
-                else kkk++;
-            }
-        }
-        else kkk+=(m_nMaxY-iii-1);
+    vector<int> vIBD(1+m_nMaxY/2,0);
+    vector<int> vN(1+m_nMaxY/2,0);
+    int szSample = 0;
+    double dSigma2 = 0.0;
+    
+    int i0 = m_nTransPos * m_nMaxY;
+    for(int i = i0; i < i0+m_nMaxY; ++i) {
+    	if(m_vPop2[i].nWeight == 0)
+    		continue;
+    	szSample += 1;
+    	
+    	int p = m_vPop2[i].nParent_id;
+    	dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
+    	
+    	for(int j=i; j < i0+m_nMaxY; ++j) {
+    		if(m_vPop2[j].nWeight == 0)
+    			continue;
+    		int k = j-i;
+    		k = (k <= m_nMaxY/2) ? k : m_nMaxY-k;
+       		if(m_vPop2[i].nAllele == m_vPop2[j].nAllele) {
+    			vIBD[k] += 1;
+    		}
+    		vN[k] += 1;
+    	}
     }
-
-
-
-    for(int iii=0; iii<m_nMaxY/2;iii++)
-    {
-        double fpIBD =  (double)vIBD[iii] / (double)m_DistCount[iii];
-        mout << fpIBD << "\t";
-        m_vAvgIBD[iii] += fpIBD;
+    
+    mout << "pIBD Gen " << gen << ": ";
+    for(unsigned int k=0; k<vIBD.size();++k) {
+        double fpIBD =  (double)vIBD[k] / (double)vN[k];
+        mout << fpIBD << ((k < vIBD.size()-1) ? "\t" : "\n");
     }
-    mout << endl;
-
-
-
-    int nSumDist2 = 0;
-    for(int iii=0; iii<m_nMaxY; iii++)
-    {
-        pair<int,int> npXY = i2xy(m_vPop2[m_vtransIndex[iii]].nParent_id, m_nMaxX, m_nMaxY);
-        pair<int,int> niXY = i2xy(m_vtransIndex[iii], m_nMaxX, m_nMaxY);
-        nSumDist2 += (pow(minDist(npXY.first,niXY.first,m_nMaxX),2) + pow(minDist(npXY.second,niXY.second,m_nMaxY),2));
-    }
-    float nSigma2 = (nSumDist2/(float)m_nMaxY) * 0.5;
-    mout << "sigma2: " << nSigma2 << endl << endl;
-    m_fAvgSig += nSigma2;
-
+    
+    mout << "sigma2: " << dSigma2/(2.0*szSample) << endl << endl;
 }
 
