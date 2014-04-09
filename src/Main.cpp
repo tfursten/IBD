@@ -10,8 +10,6 @@ int main(int ac, char** av)
     unsigned int seed;
     static double dMut;
     static float fSigma;
-
-    enum Distribution {EXPONENTIAL, GAUSSIAN, TRIANGULAR};
     string dist_name, infile, outfileName;
 
     ostringstream out;
@@ -33,9 +31,9 @@ int main(int ac, char** av)
             ("sigma,s", po::value<float>(&fSigma)->default_value(2.0), "Set dispersal parameter")
             ("burn,b", po::value<int>(&nBurnIn)->default_value(0),"Set Burn-in Period")
             ("sample,t", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
-            ("output_file,f", po::value<string>(&outfileName)->default_value(string("data.txt")),"Output File Name")
+            ("output_file,f", po::value<string>(&outfileName)->default_value(string("data")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
-            ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis. Default: Center")
+            ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis.")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -102,7 +100,8 @@ int main(int ac, char** av)
         if (seed)
             out << "User set PRNG seed to: " << seed << ".\n";
         out << "Transect position is set to: " << nTransPos << ".\n";
-        cout << "Data saved to: " << outfileName << endl;
+
+
 
 
 
@@ -114,13 +113,19 @@ int main(int ac, char** av)
         return 1;
     }
 
-    ofstream fout;
-    fout.open(outfileName.c_str());
-    fout << out.str();
+    string datafile = outfileName+".txt";
+    string paramfile = outfileName+"_settings.txt";
+    cout << "Data saved to: " << datafile << endl;
+    cout << "Parameters saved to: " << paramfile << endl;
+    ofstream pout;
+    ofstream dout;
+    pout.open(paramfile.c_str());
+    dout.open(datafile.c_str());
+    pout << out.str();
     cout << out.str();
 	//Initialize Population
 
-	Population pop(fout);
+	Population pop(pout, dout);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);

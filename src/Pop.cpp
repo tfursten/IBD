@@ -70,7 +70,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_vPop2.assign(m_nIndividuals, individual(0,0,0));
 
     cout << out.str();
-    mout << out.str() << "#" << endl;
+    pout << out.str() << "#" << endl;
 
 }
 
@@ -101,23 +101,15 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         std::swap(m_vPop1,m_vPop2);
     }
 
-
+    dout << "#Gen\tSigma2\tnIBD" << endl;
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
             step(parent);
         if (ggg % m_nSample == 0)
-           samplePop(ggg);
+            samplePop(ggg);
         std::swap(m_vPop1,m_vPop2);
     }
-
-	/*
-    mout << "Average IBD: " ;
-    for(int iii=0; iii<m_nMaxY; iii++)
-        mout << m_vAvgIBD[iii]/m_nGenerations << "\t";
-    mout << "\nAverage Sigma2: " << m_dAvgSig/m_nGenerations << endl;
-    cout <<"Done"<< endl;
-    */
 }
 
 int wrap_around(int x, int w) {
@@ -132,7 +124,7 @@ int Population::dispersal(int x, int y)
     double dY = floor(r*sin(a)+y+0.5);
     int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
     int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
-    
+
     return xy2i(newX,newY, m_nMaxX,m_nMaxY);
 }
 
@@ -174,36 +166,47 @@ void Population::samplePop(int gen)
 {
     vector<int> vIBD(1+m_nMaxY/2,0);
     vector<int> vN(1+m_nMaxY/2,0);
+    typedef map<int,int> mapType;
+    mapType alleleMap;
     int szSample = 0;
     double dSigma2 = 0.0;
-    
+    double ko = 0.0;
+    double ke = 0.0;
+
     int i0 = m_nTransPos * m_nMaxY;
     for(int i = i0; i < i0+m_nMaxY; ++i) {
-    	if(m_vPop2[i].nWeight == 0)
+    	individual ind = m_vPop2[i];
+        if(ind.nWeight == 0)
     		continue;
     	szSample += 1;
-    	
-    	int p = m_vPop2[i].nParent_id;
+    	alleleMap[ind.nAllele] += 1;
+    	int p = ind.nParent_id;
     	dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
-    	
+
     	for(int j=i; j < i0+m_nMaxY; ++j) {
     		if(m_vPop2[j].nWeight == 0)
     			continue;
     		int k = j-i;
     		k = (k <= m_nMaxY/2) ? k : m_nMaxY-k;
-       		if(m_vPop2[i].nAllele == m_vPop2[j].nAllele) {
+       		if(ind.nAllele == m_vPop2[j].nAllele) {
     			vIBD[k] += 1;
     		}
     		vN[k] += 1;
     	}
     }
-    
-    mout << "pIBD Gen " << gen << ": ";
-    for(unsigned int k=0; k<vIBD.size();++k) {
-        double fpIBD =  (double)vIBD[k] / (double)vN[k];
-        mout << fpIBD << ((k < vIBD.size()-1) ? "\t" : "\n");
-    }
-    
-    mout << "sigma2: " << dSigma2/(2.0*szSample) << endl << endl;
+    int df = 0;
+    BOOST_FOREACH(mapType::value_type & vv, alleleMap){
+            df += vv.second*vv.second;
+        }
+    ko = (double)alleleMap.size();
+    double f = df/(double)(szSample*szSample);
+    ke = 1.0/f;
+    cout << "Ko: " << ko << " Ke: " << ke << endl;
+
+    dout << gen << "\t" << dSigma2/(2.0*szSample)<< "\t";
+    for(unsigned int k=0; k<vIBD.size();++k)
+        dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
+
 }
+
 

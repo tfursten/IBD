@@ -8,10 +8,13 @@
 #include <sstream>
 #include <cmath>
 #include <unistd.h>
-
+#include <map>
+#include <boost/foreach.hpp>
 #include "xorshift64.h"
 #include "rexp.h"
 #include "disperse.h"
+
+
 
 struct individual
 {
@@ -41,7 +44,8 @@ private:
 	int m_nTransPos;
 	xorshift64 m_myrand;
 	Dispersal dist;
-	std::ofstream & mout;
+	std::ofstream & pout;
+	std::ofstream & dout;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
 	std::vector<int> m_vtransIndex;
@@ -52,7 +56,6 @@ private:
 	int m_nBurnIn;
 	int m_nAlleleID;
 	double m_fAvgSig;
-	
 	void setMutCount();
 	int dispersal(int x, int y);
 	void step(int parent);
@@ -60,7 +63,7 @@ private:
 	void samplePop(int gen);
 
 public:
-    Population(std::ofstream &o): mout(o) {};
+    Population(std::ofstream &p, std::ofstream &d): pout(p), dout(d) {};
     void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };
