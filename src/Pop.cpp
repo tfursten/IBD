@@ -7,20 +7,20 @@ using namespace std;
 // random seed generator
 inline unsigned int create_random_seed() {
 	unsigned int v;
-	ifstream urandom("/dev/urandom", ios::in|ios::binary);
-	if(urandom.good()) {
-		urandom >> v;
-	} else {
-		v = static_cast<unsigned int>(getpid());
-		v += ((v << 15) + (v >> 3)) + 0x6ba658b3; // Spread 5-decimal PID over 32-bit number
-		v^=(v<<17);
-		v^=(v>>13);
-		v^=(v<<5);
-		v += static_cast<unsigned int>(time(NULL));
-		v^=(v<<17);
-		v^=(v>>13);
-		v^=(v<<5);
-	}
+	//ifstream urandom("/dev/urandom", ios::in|ios::binary);
+	//if(urandom.good()) {
+		//urandom >> v;
+	//} else {
+	v = static_cast<unsigned int>(getpid());
+	v += ((v << 15) + (v >> 3)) + 0x6ba658b3; // Spread 5-decimal PID over 32-bit number
+	v^=(v<<17);
+	v^=(v>>13);
+	v^=(v<<5);
+	v += static_cast<unsigned int>(time(NULL));
+	v^=(v<<17);
+	v^=(v>>13);
+	v^=(v<<5);
+	//}
     return (v == 0) ? 0x6a27d958 : (v & 0x7FFFFFFF); // return at most a 31-bit seed
 }
 
@@ -70,7 +70,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_vPop2.assign(m_nIndividuals, individual(0,0,0));
 
     cout << out.str();
-    pout << out.str() << "#" << endl;
+    pout << out.str();
 
 }
 
@@ -101,7 +101,7 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         std::swap(m_vPop1,m_vPop2);
     }
 
-    dout << "#Gen\tSigma2\tnIBD" << endl;
+    dout << "#Gen\tSigma2\tKo\tKe\tf\tnIBD" << endl;
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
@@ -201,12 +201,19 @@ void Population::samplePop(int gen)
     ko = (double)alleleMap.size();
     double f = df/(double)(szSample*szSample);
     ke = 1.0/f;
-    cout << "Ko: " << ko << " Ke: " << ke << endl;
+    cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
 
-    dout << gen << "\t" << dSigma2/(2.0*szSample)<< "\t";
+    dout << gen << "\t" << dSigma2/(2.0*szSample)<< "\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
     for(unsigned int k=0; k<vIBD.size();++k)
         dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
-
+    for(int i=0;i<m_nIndividuals;i++)
+    {
+        if(m_vPop2[i].nWeight == 0)
+            gout << -1 << " ";
+        else
+            gout << m_vPop2[i].nAllele << " ";
+    }
+    gout << endl;
 }
 
 

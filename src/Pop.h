@@ -46,16 +46,14 @@ private:
 	Dispersal dist;
 	std::ofstream & pout;
 	std::ofstream & dout;
+	std::ofstream & gout;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
 	std::vector<int> m_vtransIndex;
 	std::vector<int> m_vtransDist;
 	std::vector<int> m_DistCount;
 	std::vector<double> m_vAvgIBD;
-	int m_nGenerations;
-	int m_nBurnIn;
 	int m_nAlleleID;
-	double m_fAvgSig;
 	void setMutCount();
 	int dispersal(int x, int y);
 	void step(int parent);
@@ -63,7 +61,7 @@ private:
 	void samplePop(int gen);
 
 public:
-    Population(std::ofstream &p, std::ofstream &d): pout(p), dout(d) {};
+    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g): pout(p), dout(d), gout(g) {};
     void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };

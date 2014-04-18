@@ -115,17 +115,20 @@ int main(int ac, char** av)
 
     string datafile = outfileName+".txt";
     string paramfile = outfileName+"_settings.txt";
+    string popfile = outfileName+"pop.txt";
     cout << "Data saved to: " << datafile << endl;
     cout << "Parameters saved to: " << paramfile << endl;
     ofstream pout;
     ofstream dout;
+    ofstream gout;
     pout.open(paramfile.c_str());
     dout.open(datafile.c_str());
+    gout.open(popfile.c_str());
     pout << out.str();
     cout << out.str();
 	//Initialize Population
 
-	Population pop(pout, dout);
+	Population pop(pout, dout, gout);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
