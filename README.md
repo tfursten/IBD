@@ -7,10 +7,10 @@ A spatially explicit individual-based simulation which will model dispersal on a
 
 Author
 ------
-Tara Furstenau
-Biodesign Institute
-Center for Evolutionary Medicine and Informatics
-[Website](http://tfursten@github.io)
+Tara Furstenau  
+Biodesign Institute  
+Center for Evolutionary Medicine and Informatics  
+[Website](http://tfursten@github.io)  
 
 Compiling from Source Code
 --------------------------
