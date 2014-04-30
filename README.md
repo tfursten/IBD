@@ -19,7 +19,7 @@ IBD requires [CMake 2.8](http://www.cmake.org/) to build from source.
 
 1. Download the source code.
 2. Decompress the tar-bzip archive
-```
+```bash
 tar xvzf IBD-*.tar.bz2
 ```
 3. Change to the build directory.
