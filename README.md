@@ -45,7 +45,7 @@ Usage:
 ```
 ./ibd config.txt
 ./ibd --help
-```
+
 Allowed Options:
 
 General Options:
@@ -67,3 +67,4 @@ Configuration:
   -f [ --output_file ] arg (=data)      Output File Name
   --seed arg (=0)                       Set PRNG seed, 0 to create random seed
   --transect arg (=0)                   Set position of transect in X axis.
+```
