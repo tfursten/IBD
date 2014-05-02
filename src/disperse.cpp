@@ -19,14 +19,14 @@ double Dispersal::dist_triangular(xorshift64& rand, double sigma)
 
 double Dispersal::dist_halfNormal(xorshift64& rand, double sigma)
 {
-    double param = sigma * sqrt(2.0);
+    double param = sigma * 2.0**0.5;
     return rand_abs_normal(rand, 0.0, param);
 }
 
 double Dispersal::dist_rayleigh(xorshift64& rand, double sigma)
 {
     double param = sigma;
-    return param * sqrt(2.0 * rand_exp(rand));
+    return param * (2.0 * rand_exp(rand))**0.5;
 }
 
 
