@@ -14,7 +14,7 @@ double Dispersal::dist_triangular(xorshift64& rand, double sigma)
     //where xmin = 0 and xmax = c
     double param = 2.0*sigma;
     double u = rand.get_double52();
-    return param*sqrt(u);
+    return param*u**0.5;
 }
 
 double Dispersal::dist_halfNormal(xorshift64& rand, double sigma)
