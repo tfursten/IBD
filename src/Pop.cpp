@@ -201,7 +201,8 @@ void Population::samplePop(int gen)
     ko = (double)alleleMap.size();
     double f = df/(double)(szSample*szSample);
     ke = 1.0/f;
-    cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
+    if(verbose)
+        cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
 
     dout << gen << "\t" << dSigma2/(2.0*szSample)<< "\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
     for(unsigned int k=0; k<vIBD.size();++k)

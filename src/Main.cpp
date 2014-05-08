@@ -11,6 +11,7 @@ int main(int ac, char** av)
     static double dMut;
     static float fSigma;
     string dist_name, infile, outfileName;
+    bool verbose;
 
     ostringstream out;
     try
@@ -34,6 +35,7 @@ int main(int ac, char** av)
             ("output_file,f", po::value<string>(&outfileName)->default_value(string("data")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
             ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis.")
+            ("verbose", po::value<bool>(&verbose)->default_value(false),"Print data to screen")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -121,14 +123,14 @@ int main(int ac, char** av)
     ofstream pout;
     ofstream dout;
     ofstream gout;
-    pout.open(paramfile.c_str());
-    dout.open(datafile.c_str());
-    gout.open(popfile.c_str());
+    pout.open(paramfile);
+    dout.open(datafile);
+    gout.open(popfile);
     pout << out.str();
     cout << out.str();
 	//Initialize Population
 
-	Population pop(pout, dout, gout);
+	Population pop(pout, dout, gout, verbose);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);

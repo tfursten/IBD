@@ -47,6 +47,7 @@ private:
 	std::ofstream & pout;
 	std::ofstream & dout;
 	std::ofstream & gout;
+	bool verbose;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
 	std::vector<int> m_vtransIndex;
@@ -61,7 +62,7 @@ private:
 	void samplePop(int gen);
 
 public:
-    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g): pout(p), dout(d), gout(g) {};
+    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, bool v): pout(p), dout(d), gout(g), verbose(v) {};
     void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };
