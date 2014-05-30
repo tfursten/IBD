@@ -29,6 +29,11 @@ double Dispersal::dist_rayleigh(xorshift64& rand, double sigma)
     return param * sqrt(2.0 * rand_exp(rand));
 }
 
+double Dispersal::dist_uniform(xorshift64& rand, double sigma)
+{
+    return rand;
+}
+
 
 
 
