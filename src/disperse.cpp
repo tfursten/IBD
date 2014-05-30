@@ -31,7 +31,8 @@ double Dispersal::dist_rayleigh(xorshift64& rand, double sigma)
 
 double Dispersal::dist_uniform(xorshift64& rand, double sigma)
 {
-    return rand;
+    double u = rand.get_double52();
+    return u;
 }
 
 

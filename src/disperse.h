@@ -29,14 +29,14 @@ public:
 	template<class A>
 	bool initialize(A &dist_name) {
 		static const char name_keys[][16] = {
-		    "exponential", "triangular", "normal", "rayleigh", "uniform"
+		    "exponential", "triangular", "normal", "rayleigh", "uniform",
 		};
 		static const fptr dist_ops[] = {
             &Dispersal::dist_exponential,
             &Dispersal::dist_triangular,
             &Dispersal::dist_halfNormal,
             &Dispersal::dist_rayleigh,
-            &Dispersal::dist_uniform
+            &Dispersal::dist_uniform,
         };
         int pos = key_switch(dist_name, name_keys);
         if( pos == -1) {
