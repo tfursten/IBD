@@ -165,7 +165,7 @@ double minEuclideanDist2(int i, int j, int mx, int my) {
 double minAxialDist2(int i, int j, int mx, int my) {
     auto xy1 = i2xy(i,mx,my);
     auto xy2 = i2xy(j,mx,my);
-    double dy = abs(1.0*(xy1.second - xy2.second))
+    double dy = abs(1.0*(xy1.second - xy2.second));
     dy = (dy < my*0.5) ? dy : my-dy;
     return (dy*dy);
 }
@@ -191,7 +191,7 @@ void Population::samplePop(int gen)
     	alleleMap[ind.nAllele] += 1;
     	int p = ind.nParent_id;
     	dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
-        dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxy);
+        dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
 
     	for(int j=i; j < i0+m_nMaxY; ++j) {
     		if(m_vPop2[j].nWeight == 0)
