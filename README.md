@@ -52,20 +52,18 @@ General Options:
   --help                Produce help message
 
 Configuration:
-  -x [ --maxX ] arg (=100)              Set X dimension
-  -y [ --maxY ] arg (=100)              Set Y dimension
-  -g [ --generations ] arg (=10)        Set number of Generations to run after 
-                                        burn-in
-  -o [ --offspring ] arg (=10)          Set number of offspring per individual
-  -m [ --mut ] arg (=0)                 Set mutation rate
-  -d [ --distribution ] arg (=exponential)
-                                        Set Dispersal Distribution
-  -s [ --sigma ] arg (=2)               Set dispersal parameter
-  -b [ --burn ] arg (=0)                Set Burn-in Period
-  -t [ --sample ] arg (=1)              Sample every n generations after 
-                                        burn-in
-  -f [ --output_file ] arg (=data)      Output File Name
-  --seed arg (=0)                       Set PRNG seed, 0 to create random seed
-  --transect arg (=0)                   Set position of transect in X axis.
-  --verbose arg (=0)                    Print data to screen
+  -x [ --maxX ] arg (=100)          Set X dimension
+  -y [ --maxY ] arg (=100)          Set Y dimension
+  -g [ --generations ] arg (=10)    Set number of Generations to run after 
+                                    burn-in
+  -o [ --offspring ] arg (=10)      Set number of offspring per individual
+  -m [ --mut ] arg (=0)             Set mutation rate
+  -d [ --distribution ] arg (=disk) Set Dispersal Distribution
+  -s [ --sigma ] arg (=2)           Set dispersal parameter
+  -b [ --burn ] arg (=0)            Set Burn-in Period
+  -t [ --sample ] arg (=1)          Sample every n generations after burn-in
+  -f [ --output_file ] arg (=data)  Output File Name
+  --seed arg (=0)                   Set PRNG seed, 0 to create random seed
+  --transect arg (=0)               Set position of transect in X axis.
+  --verbose arg (=0)                Print data to screen
 
