@@ -13,6 +13,7 @@
 #include "xorshift64.h"
 #include "rexp.h"
 #include "disperse.h"
+#include "disk.h"
 
 
 
@@ -44,6 +45,7 @@ private:
 	int m_nTransPos;
 	xorshift64 m_myrand;
 	Dispersal dist;
+    Disk disk;
 	std::ofstream & pout;
 	std::ofstream & dout;
 	std::ofstream & gout;
@@ -56,10 +58,14 @@ private:
 	std::vector<double> m_vAvgIBD;
 	int m_nAlleleID;
 	void setMutCount();
-	int dispersal(int x, int y);
+	int disperseDist(int x, int y);
+	int disperseDisk(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
 	void samplePop(int gen);
+
+protected:
+    int(Population::*disperse)(int,int);
 
 public:
     Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, bool v): pout(p), dout(d), gout(g), verbose(v) {};

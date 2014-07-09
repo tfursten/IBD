@@ -18,9 +18,9 @@ ENDIF(Boost_FOUND)
 
 
 ADD_EXECUTABLE(ibd
-  Main.cpp Pop.cpp
+  Main.cpp Pop.cpp disk.cpp
   rexp.cpp rnormal.cpp disperse.cpp
-  Main.h Pop.h disperse.h
+  Main.h Pop.h disperse.h aliastable.h disk.h
   xorshift64.h
   rexp.h rnormal.h
 )

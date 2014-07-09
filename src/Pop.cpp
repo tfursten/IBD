@@ -45,7 +45,6 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
     m_nOffspring = nOffspring;
-    m_dSigma = dSigma;
     m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
@@ -53,8 +52,21 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     setMutCount();
     ostringstream out;
     m_nSample = nSample;
-    dist.initialize(dist_name);
-    out << "Dispersal distribution set to " << dist.getName() << endl;
+
+    m_dSigma = dSigma;
+    out << "Dispersal distribution set to " ;
+    if (dist_name != "disk"){
+        dist.initialize(dist_name);
+        disperse = &Population::disperseDist;
+        out << dist.getName() << endl;
+    }
+    else{
+        disk.initialize(2.0*m_dSigma);
+        disperse = &Population::disperseDisk;
+        out << "Disk" << endl;
+    }
+
+
 
     //set Random seed
     if (seed==0) {
@@ -116,7 +128,14 @@ int wrap_around(int x, int w) {
 	return ((x % w) + w) % w;
 }
 
-int Population::dispersal(int x, int y)
+
+int Population::disperseDisk(int x, int y)
+{
+    return disk.disperse(x,y,m_myrand.get_uint64(),m_nMaxX, m_nMaxY);
+}
+
+
+int Population::disperseDist(int x, int y)
 {
     double a = m_myrand.get_double52() * 2.0 * M_PI;
     double r = dist(m_myrand,m_dSigma);
@@ -139,7 +158,7 @@ void Population::step(int parent)
     int nY = xy.second;
     for (int off=0; off<m_nOffspring; off++)
     {
-        int nNewCell = dispersal(nX,nY);
+        int nNewCell = (this->*disperse)(nX,nY);
         unsigned int nSeedWeight = m_myrand.get_uint32();
         unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
         int offAllele = mutation(m_vPop1[parent].nAllele);
