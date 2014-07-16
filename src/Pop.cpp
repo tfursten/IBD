@@ -24,6 +24,8 @@ inline unsigned int create_random_seed() {
     return (v == 0) ? 0x6a27d958 : (v & 0x7FFFFFFF); // return at most a 31-bit seed
 }
 
+typedef pair<int,int> xyCoord;
+
 inline pair<int,int> i2xy(int i, int mx, int my)
 {
     assert(0 <= i && i < mx*my);
@@ -40,10 +42,11 @@ inline int xy2i(pair<int,int> xy, int mx, int my) {
 	return xy2i(xy.first,xy.second,mx,my);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name, bool torus)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
+    m_bTorus = torus;
     m_nOffspring = nOffspring;
     m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
@@ -57,12 +60,18 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     out << "Dispersal distribution set to " ;
     if (dist_name != "disk"){
         dist.initialize(dist_name);
-        disperse = &Population::disperseDist;
+        if (torus)
+            disperse = &Population::disperseDist;
+        else
+            disperse = &Population::disperseSquareDist;
         out << dist.getName() << endl;
     }
     else{
         disk.initialize(2.0*m_dSigma);
-        disperse = &Population::disperseDisk;
+        if (torus)
+            disperse = &Population::disperseDisk;
+        else
+            disperse = &Population::disperseSquareDisk;
         out << "Disk" << endl;
     }
 
@@ -131,7 +140,22 @@ int wrap_around(int x, int w) {
 
 int Population::disperseDisk(int x, int y)
 {
-    return disk.disperse(x,y,m_myrand.get_uint64(),m_nMaxX, m_nMaxY);
+    xyCoord dXY = disk.disperse(m_myrand.get_uint64());
+    double dX = x+dXY.first;
+    double dY = y+dXY.second;
+    int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
+    int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
+    return xy2i(newX,newY,m_nMaxX,m_nMaxY);
+}
+
+int Population::disperseSquareDisk(int x, int y)
+{
+    xyCoord dXY = disk.disperse(m_myrand.get_uint64());
+    double dX = x+dXY.first;
+    double dY = y+dXY.second;
+    if (x>=0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
+        return xy2i(dX,dY,m_nMaxX,m_nMaxY);
+    return -1;
 }
 
 
@@ -147,6 +171,17 @@ int Population::disperseDist(int x, int y)
     return xy2i(newX,newY, m_nMaxX,m_nMaxY);
 }
 
+int Population::disperseSquareDist(int x, int y)
+{
+    double a = m_myrand.get_double52() * 2.0 * M_PI;
+    double r = dist(m_myrand,m_dSigma);
+    double dX = floor(r*cos(a)+x+0.5);
+    double dY = floor(r*sin(a)+y+0.5);
+    if (dX >= 0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
+        return xy2i(dX,dY,m_nMaxX, m_nMaxY);
+    return -1;
+}
+
 void Population::step(int parent)
 {
     unsigned int &parentHere = m_vPop1[parent].nWeight;
@@ -159,6 +194,11 @@ void Population::step(int parent)
     for (int off=0; off<m_nOffspring; off++)
     {
         int nNewCell = (this->*disperse)(nX,nY);
+        if (nNewCell == -1)
+        {
+            mutation(m_vPop2[parent].nAllele);
+            continue;
+        }
         unsigned int nSeedWeight = m_myrand.get_uint32();
         unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
         int offAllele = mutation(m_vPop1[parent].nAllele);
@@ -181,12 +221,27 @@ double minEuclideanDist2(int i, int j, int mx, int my) {
 	return (dx*dx+dy*dy);
 }
 
+double euclideanDist2(int i, int j, int mx, int my) {
+    auto xy1 = i2xy(i,mx,my);
+    auto xy2 = i2xy(j,mx,my);
+    double dx = xy1.first - xy2.first;
+    double dy = xy1.second - xy2.second;
+    return (dx*dx+dy*dy);
+}
+
 double minAxialDist2(int i, int j, int mx, int my) {
     auto xy1 = i2xy(i,mx,my);
     auto xy2 = i2xy(j,mx,my);
     double dy = abs(1.0*(xy1.second - xy2.second));
     dy = (dy < my*0.5) ? dy : my-dy;
     return (dy*dy);
+}
+
+double axialDist2(int i, int j, int mx, int my) {
+    auto xy1 = i2xy(i,mx,my);
+    auto xy2 = i2xy(j,mx,my);
+    double dy = abs(1.0*(xy1.second - xy2.second));
+    return dy*dy;
 }
 
 void Population::samplePop(int gen)
@@ -209,8 +264,16 @@ void Population::samplePop(int gen)
     	szSample += 1;
     	alleleMap[ind.nAllele] += 1;
     	int p = ind.nParent_id;
-    	dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
-        dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
+        if (m_bTorus)
+        {   
+            dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
+            dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
+        }
+        else
+        {
+            dSigma2 += euclideanDist2(i,p,m_nMaxX,m_nMaxY);
+            dSigma2_1D += axialDist2(i,p,m_nMaxX,m_nMaxY);
+        }
 
     	for(int j=i; j < i0+m_nMaxY; ++j) {
     		if(m_vPop2[j].nWeight == 0)

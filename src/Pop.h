@@ -50,6 +50,7 @@ private:
 	std::ofstream & dout;
 	std::ofstream & gout;
 	bool verbose;
+	bool m_bTorus;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
 	std::vector<int> m_vtransIndex;
@@ -60,6 +61,8 @@ private:
 	void setMutCount();
 	int disperseDist(int x, int y);
 	int disperseDisk(int x, int y);
+	int disperseSquareDisk(int x, int y);
+	int disperseSquareDist(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
 	void samplePop(int gen);
@@ -69,7 +72,7 @@ protected:
 
 public:
     Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, bool v): pout(p), dout(d), gout(g), verbose(v) {};
-    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name);
+    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name, bool torus);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };
 

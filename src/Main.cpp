@@ -11,7 +11,7 @@ int main(int ac, char** av)
     static double dMut;
     static float fSigma;
     string dist_name, infile, outfileName;
-    bool verbose;
+    bool verbose, torus;
 
     ostringstream out;
     try
@@ -34,6 +34,7 @@ int main(int ac, char** av)
             ("sample,t", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
             ("output_file,f", po::value<string>(&outfileName)->default_value(string("data")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
+            ("torus", po::value<bool>(&torus)->default_value(true),"Landscape Geometry torus (default) or rectangular")
             ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis.")
             ("verbose", po::value<bool>(&verbose)->default_value(false),"Print data to screen")
             ;
@@ -102,6 +103,10 @@ int main(int ac, char** av)
         if (seed)
             out << "User set PRNG seed to: " << seed << ".\n";
         out << "Transect position is set to: " << nTransPos << ".\n";
+        if (torus)
+            out << "Population geometry is a torus.\n";
+        else
+            out << "Population geometry is a rectangle.\n";
 
 
 
@@ -131,7 +136,7 @@ int main(int ac, char** av)
 	//Initialize Population
 
 	Population pop(pout, dout, gout, verbose);
-	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name);
+	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, torus);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 
