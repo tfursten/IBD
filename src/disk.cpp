@@ -9,10 +9,7 @@ void Disk::initialize(double r)
     vecDim = cellRange.size()-1;
     m_maxX = getMaxX();
     totalArea = M_PI*rSq;
-    cout << "radius: " << r << endl;
-    cout << "dim: " << vecDim << endl;
-    cout << "MaxX: " << m_maxX << endl;
-    cout << "Total Area: " << totalArea << endl;
+    makeTables();
 
 }
 
