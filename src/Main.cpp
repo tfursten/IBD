@@ -134,11 +134,14 @@ int main(int ac, char** av)
     pout << out.str();
     cout << out.str();
 	//Initialize Population
-
+    clock_t start = clock();
 	Population pop(pout, dout, gout, verbose);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, torus);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
+	clock_t end = clock();
+	float seconds = (float)(end-start)/ CLOCKS_PER_SEC;
+    cout << "TIME: " << seconds << endl;
 
 
 
