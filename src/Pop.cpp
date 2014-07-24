@@ -153,7 +153,7 @@ int Population::disperseSquareDisk(int x, int y)
     xyCoord dXY = disk.disperse(m_myrand.get_uint64());
     double dX = x+dXY.first;
     double dY = y+dXY.second;
-    if (x>=0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
+    if (dX>=0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
         return xy2i(dX,dY,m_nMaxX,m_nMaxY);
     return -1;
 }
