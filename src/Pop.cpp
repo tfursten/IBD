@@ -196,7 +196,7 @@ void Population::step(int parent)
         int nNewCell = (this->*disperse)(nX,nY);
         if (nNewCell == -1)
         {
-            mutation(m_vPop2[parent].nAllele);
+            mutation(m_vPop1[parent].nAllele);
             continue;
         }
         unsigned int nSeedWeight = m_myrand.get_uint32();
@@ -301,7 +301,7 @@ void Population::samplePop(int gen)
         dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
     for(int i=0;i<m_nIndividuals;i++)
     {
-        if(m_vPop2[i].nWeight == 0)
+        if(m_vPop2[i].nWeight <= 0)
             gout << -1 << " ";
         else
             gout << m_vPop2[i].nAllele << " ";
