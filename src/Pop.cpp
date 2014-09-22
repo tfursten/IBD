@@ -303,14 +303,14 @@ void Population::samplePop(int gen)
     dout << gen << "\t" << dSigma2/(2.0*szSample)<<"\t"<< dSigma2_1D/(1.0*szSample) <<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
     for(unsigned int k=0; k<vIBD.size();++k)
         dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
-    for(int i=0;i<m_nIndividuals;i++)
-    {
-        if(m_vPop2[i].nWeight <= 0)
-            gout << -1 << " ";
-        else
-            gout << m_vPop2[i].nAllele << " ";
-    }
-    gout << endl;
+    //for(int i=0;i<m_nIndividuals;i++)
+    //{
+        //if(m_vPop2[i].nWeight <= 0)
+            //gout << -1 << " ";
+        //else
+            //gout << m_vPop2[i].nAllele << " ";
+    //}
+    //gout << endl;
 }
 
 
