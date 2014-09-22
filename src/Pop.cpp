@@ -246,8 +246,8 @@ double axialDist2(int i, int j, int mx, int my) {
 
 void Population::samplePop(int gen)
 {
-    //vector<int> vIBD(1+m_nMaxY/2,0);
-    vector<int> vgIBD(1+m_nMaxY/2,0);
+    vector<int> vIBD(1+m_nMaxY/2,0);
+    //vector<int> vgIBD(1+m_nMaxY/2,0);
     vector<int> vN(1+m_nMaxY/2,0);
     typedef map<int,int> mapType;
     mapType alleleMap;
@@ -281,12 +281,12 @@ void Population::samplePop(int gen)
     			continue;
     		int k = j-i;
     		k = (k <= m_nMaxY/2) ? k : m_nMaxY-k;
-       		//if(ind.nAllele == m_vPop2[j].nAllele) {
-    			//vIBD[k] += 1;
-    		//}
-            if(ind.nParent_id == m_vPop2[j].nParent_id) {
-                vgIBD[k] += 1;
-            }
+       		if(ind.nAllele == m_vPop2[j].nAllele) {
+    			vIBD[k] += 1;
+    		}
+            //if(ind.nParent_id == m_vPop2[j].nParent_id) {
+                //vgIBD[k] += 1;
+            //}
     		vN[k] += 1;
     	}
     }
@@ -301,8 +301,8 @@ void Population::samplePop(int gen)
         cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
 
     dout << gen << "\t" << dSigma2/(2.0*szSample)<<"\t"<< dSigma2_1D/(1.0*szSample) <<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
-    for(unsigned int k=0; k<vgIBD.size();++k)
-        dout << vgIBD[k] << "/" << vN[k] << ((k< vgIBD.size()-1) ? "\t" : "\n");
+    for(unsigned int k=0; k<vIBD.size();++k)
+        dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
     for(int i=0;i<m_nIndividuals;i++)
     {
         if(m_vPop2[i].nWeight <= 0)
