@@ -37,7 +37,6 @@ double Dispersal::dist_uniform(xorshift64& rand, double sigma)
 {
     double u = rand.get_uint32();
     return u;
-
 }
 
 double Dispersal::dist_ring(xorshift64& rand, double sigma)
