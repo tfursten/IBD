@@ -58,7 +58,15 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
 
     m_dSigma = dSigma;
     out << "Dispersal distribution set to " ;
-    if (dist_name != "disk"){
+    if (dist_name == "ray"){
+        dist.initialize(dist_name);
+        if (torus)
+            disperse = &Population::disperseRay;
+        else
+            disperse = &Population::disperseSquareRay;
+        out << dist.getName()<<endl;
+    }
+    else if (dist_name != "disk"){
         dist.initialize(dist_name);
         if (torus)
             disperse = &Population::disperseDist;
@@ -74,6 +82,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
             disperse = &Population::disperseSquareDisk;
         out << "Disk" << endl;
     }
+
 
 
 
@@ -122,7 +131,7 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         std::swap(m_vPop1,m_vPop2);
     }
 
-    dout << "#Gen\tSigma2\tSigma2_1D\tKo\tKe\tf\tgIBD" << endl;
+    dout << "#Gen\tSigma2\tSigma2_1D\tKo\tKe\tf\tIBD" << endl;
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
@@ -137,6 +146,28 @@ int wrap_around(int x, int w) {
 	return ((x % w) + w) % w;
 }
 
+int Population::disperseRay(int x, int y)
+{
+    double rx = dist(m_myrand,m_dSigma);
+    double ry = dist(m_myrand,m_dSigma);
+    double dX = floor(rx+x+0.5);
+    double dY = floor(ry+y+0.5);
+    int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
+    int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
+    return xy2i(newX,newY, m_nMaxX,m_nMaxY);
+
+}
+
+int Population::disperseSquareRay(int x, int y)
+{
+    double rx = dist(m_myrand,m_dSigma);
+    double ry = dist(m_myrand,m_dSigma);
+    double dX = floor(rx+x+0.5);
+    double dY = floor(rx+y+0.5);
+    if (dX >= 0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
+        return xy2i(dX,dY,m_nMaxX, m_nMaxY);
+    return -1;
+}
 
 int Population::disperseDisk(int x, int y)
 {

@@ -63,6 +63,8 @@ private:
 	int disperseDisk(int x, int y);
 	int disperseSquareDisk(int x, int y);
 	int disperseSquareDist(int x, int y);
+	int disperseRay(int x, int y);
+	int disperseSquareRay(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
 	void samplePop(int gen);

@@ -25,8 +25,12 @@ double Dispersal::dist_halfNormal(xorshift64& rand, double sigma)
 
 double Dispersal::dist_rayleigh(xorshift64& rand, double sigma)
 {
-    double param = sigma;
-    return param * sqrt(2.0 * rand_exp(rand));
+    //double param = sigma;
+    //double x = rand_normal(rand,0.0,param);
+    //double y = rand_normal(rand,0.0,param);
+    //return sqrt(x*x+y*y);
+    //return param * sqrt(2.0 * rand_exp(rand));
+    return rand_normal(rand,0.0,sigma);
 }
 
 double Dispersal::dist_uniform(xorshift64& rand, double sigma)
@@ -36,6 +40,10 @@ double Dispersal::dist_uniform(xorshift64& rand, double sigma)
 
 }
 
+double Dispersal::dist_ring(xorshift64& rand, double sigma)
+{
+    return 2.0*sigma;
+}
 
 
 
