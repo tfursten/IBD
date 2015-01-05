@@ -59,7 +59,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_dSigma = dSigma;
     out << "Dispersal distribution set to " ;
     if (dist_name == "ray"){
-        dist.initialize(dist_name);
+        dist.initialize(dist_name, m_dSigma);
         if (torus)
             disperse = &Population::disperseRay;
         else
@@ -67,7 +67,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
         out << dist.getName()<<endl;
     }
     else if (dist_name != "disk"){
-        dist.initialize(dist_name);
+        dist.initialize(dist_name, m_dSigma);
         if (torus)
             disperse = &Population::disperseDist;
         else

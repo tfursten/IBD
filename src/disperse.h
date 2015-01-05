@@ -23,11 +23,11 @@ int key_switch(A &ss, const B (&key)[N])
 class Dispersal
 {
 protected:
-    typedef double(Dispersal::*fptr)(xorshift64&, double);
+    typedef double(Dispersal::*fptr)(xorshift64&);
 
 public:
 	template<class A>
-	bool initialize(A &dist_name) {
+	bool initialize(A &dist_name, double sigma) {
 		static const char name_keys[][16] = {
 		    "exponential", "triangular", "normal", "rayleigh", "uniform", "ring",
 		};
@@ -46,29 +46,31 @@ public:
         }
         name = std::string(name_keys[pos]);
         op = dist_ops[pos];
+        param = set_param(name,sigma);
         return true;
 	}
 	    
     inline std::string getName() { return name; }
     
     inline double operator()(xorshift64& rand, double sigma) {
-    	return (this->*op)(rand,sigma);
+    	return (this->*op)(rand);
     }
-    
-	double dist_exponential(xorshift64& rand, double sigma);
-	double dist_triangular(xorshift64& rand, double sigma);
-	double dist_halfNormal(xorshift64& rand, double sigma);
-	double dist_rayleigh(xorshift64& rand, double sigma);
-    double dist_uniform(xorshift64& rand, double sigma);
-    double dist_ring(xorshift64& rand, double sigma);
+    double set_param(std::string name, double sigma);
+	double dist_exponential(xorshift64& rand);
+	double dist_triangular(xorshift64& rand);
+	double dist_halfNormal(xorshift64& rand);
+	double dist_rayleigh(xorshift64& rand);
+    double dist_uniform(xorshift64& rand);
+    double dist_ring(xorshift64& rand);
 	
 	Dispersal() {
-		initialize("exponential");
+		initialize("exponential",1);
 	}
 	
 private:
     std::string name;
     fptr op;
+    double param;
 };
 
 #endif // DISPERSE_INCLUDED
