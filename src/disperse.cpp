@@ -14,7 +14,7 @@ double Dispersal::set_param(std::string name, double sigma)
     else if (name == "normal")
         return sigma * sqrt(2.0);
     else if (name == "ring")
-        return (2*sigma)/sqrt(2.0);
+        return sigma;
     else if (name == "uniform")
         return sigma;
 }
@@ -39,6 +39,7 @@ double Dispersal::dist_halfNormal(xorshift64& rand)
 
 double Dispersal::dist_rayleigh(xorshift64& rand)
 {
+    //Return offset
     //double param = sigma;
     //double x = rand_normal(rand,0.0,param);
     //double y = rand_normal(rand,0.0,param);
