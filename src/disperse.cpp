@@ -14,7 +14,7 @@ double Dispersal::set_param(std::string name, double sigma)
     else if (name == "normal")
         return sigma * sqrt(2.0);
     else if (name == "ring")
-        return sigma;
+        return 2.0*sigma;
     else if (name == "uniform")
         return sigma;
 }
