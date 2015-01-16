@@ -42,11 +42,11 @@ inline int xy2i(pair<int,int> xy, int mx, int my) {
 	return xy2i(xy.first,xy.second,mx,my);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,unsigned int seed, int nTransPos, int nSample, string dist_name, bool torus)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
-    m_bTorus = torus;
+    m_sBound = bound;
     m_nOffspring = nOffspring;
     m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
@@ -55,35 +55,10 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     setMutCount();
     ostringstream out;
     m_nSample = nSample;
-
     m_dSigma = dSigma;
-    out << "Dispersal distribution set to " ;
-    if (dist_name == "ray"){
-        dist.initialize(dist_name, m_dSigma);
-        if (torus)
-            disperse = &Population::disperseRay;
-        else
-            disperse = &Population::disperseSquareRay;
-        out << dist.getName()<<endl;
-    }
-    else if (dist_name != "disk"){
-        dist.initialize(dist_name, m_dSigma);
-        if (torus)
-            disperse = &Population::disperseDist;
-        else
-            disperse = &Population::disperseSquareDist;
-        out << dist.getName() << endl;
-    }
-    else{
-        disk.initialize(2.0*m_dSigma);
-        if (torus)
-            disperse = &Population::disperseDisk;
-        else
-            disperse = &Population::disperseSquareDisk;
-        out << "Disk" << endl;
-    }
-
-
+    disp.initialize(dist_name, m_nMaxX, m_nMaxY, fast, m_sBound, dSigma, param);
+    out << "Dispersal distribution set to " << disp.getName() << ".\n" ;
+    out << "Landscape set to " << m_sBound << ".\n";
 
 
     //set Random seed
@@ -142,76 +117,6 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
     }
 }
 
-int wrap_around(int x, int w) {
-	return ((x % w) + w) % w;
-}
-
-int Population::disperseRay(int x, int y)
-{
-    double rx = dist(m_myrand,m_dSigma);
-    double ry = dist(m_myrand,m_dSigma);
-    double dX = floor(rx+x+0.5);
-    double dY = floor(ry+y+0.5);
-    int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
-    int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
-    return xy2i(newX,newY, m_nMaxX,m_nMaxY);
-
-}
-
-int Population::disperseSquareRay(int x, int y)
-{
-    double rx = dist(m_myrand,m_dSigma);
-    double ry = dist(m_myrand,m_dSigma);
-    double dX = floor(rx+x+0.5);
-    double dY = floor(rx+y+0.5);
-    if (dX >= 0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
-        return xy2i(dX,dY,m_nMaxX, m_nMaxY);
-    return -1;
-}
-
-int Population::disperseDisk(int x, int y)
-{
-    xyCoord dXY = disk.disperse(m_myrand.get_uint64());
-    double dX = x+dXY.first;
-    double dY = y+dXY.second;
-    int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
-    int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
-    return xy2i(newX,newY,m_nMaxX,m_nMaxY);
-}
-
-int Population::disperseSquareDisk(int x, int y)
-{
-    xyCoord dXY = disk.disperse(m_myrand.get_uint64());
-    double dX = x+dXY.first;
-    double dY = y+dXY.second;
-    if (dX>=0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
-        return xy2i(dX,dY,m_nMaxX,m_nMaxY);
-    return -1;
-}
-
-
-int Population::disperseDist(int x, int y)
-{
-    double a = m_myrand.get_double52() * 2.0 * M_PI;
-    double r = dist(m_myrand,m_dSigma);
-    double dX = floor(r*cos(a)+x+0.5);
-    double dY = floor(r*sin(a)+y+0.5);
-    int newX = wrap_around(static_cast<int>(dX), m_nMaxX);
-    int newY = wrap_around(static_cast<int>(dY), m_nMaxY);
-
-    return xy2i(newX,newY, m_nMaxX,m_nMaxY);
-}
-
-int Population::disperseSquareDist(int x, int y)
-{
-    double a = m_myrand.get_double52() * 2.0 * M_PI;
-    double r = dist(m_myrand,m_dSigma);
-    double dX = floor(r*cos(a)+x+0.5);
-    double dY = floor(r*sin(a)+y+0.5);
-    if (dX >= 0 && dX < m_nMaxX && dY >= 0 && dY < m_nMaxY)
-        return xy2i(dX,dY,m_nMaxX, m_nMaxY);
-    return -1;
-}
 
 void Population::step(int parent)
 {
@@ -224,7 +129,7 @@ void Population::step(int parent)
     int nY = xy.second;
     for (int off=0; off<m_nOffspring; off++)
     {
-        int nNewCell = (this->*disperse)(nX,nY);
+        int nNewCell = disp(m_myrand,nX,nY);
         if (nNewCell == -1)
         {
             mutation(m_vPop1[parent].nAllele);
@@ -296,7 +201,7 @@ void Population::samplePop(int gen)
     	szSample += 1;
     	alleleMap[ind.nAllele] += 1;
     	int p = ind.nParent_id;
-        if (m_bTorus)
+        if (m_sBound == "torus")
         {   
             dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
             dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);

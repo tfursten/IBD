@@ -36,6 +36,7 @@ class Population
 private:
     int m_nMaxX;
     int m_nMaxY;
+    std::string m_sBound;
     int m_nOffspring;
     double m_dSigma;
 	double m_dMut;
@@ -44,8 +45,7 @@ private:
 	int m_nSample;
 	int m_nTransPos;
 	xorshift64 m_myrand;
-	Dispersal dist;
-    Disk disk;
+	Dispersal disp;
 	std::ofstream & pout;
 	std::ofstream & dout;
 	std::ofstream & gout;
@@ -59,12 +59,6 @@ private:
 	std::vector<double> m_vAvgIBD;
 	int m_nAlleleID;
 	void setMutCount();
-	int disperseDist(int x, int y);
-	int disperseDisk(int x, int y);
-	int disperseSquareDisk(int x, int y);
-	int disperseSquareDist(int x, int y);
-	int disperseRay(int x, int y);
-	int disperseSquareRay(int x, int y);
 	void step(int parent);
 	int mutation(int allele);
 	void samplePop(int gen);
@@ -74,7 +68,7 @@ protected:
 
 public:
     Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, bool v): pout(p), dout(d), gout(g), verbose(v) {};
-    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma, double dMut, unsigned int seed, int nTransPos, int nSample, std::string dist_name, bool torus);
+    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };
 

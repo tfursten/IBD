@@ -18,11 +18,11 @@ ENDIF(Boost_FOUND)
 
 
 ADD_EXECUTABLE(ibd
-  Main.cpp Pop.cpp disk.cpp
+  Main.cpp Pop.cpp disk.cpp ray.cpp ring.cpp
   rexp.cpp rnormal.cpp disperse.cpp
   Main.h Pop.h disperse.h aliastable.h disk.h
   xorshift64.h
-  rexp.h rnormal.h
+  rexp.h rnormal.h ray.h ring.h
 )
 
 TARGET_LINK_LIBRARIES(ibd ${Boost_LIBRARIES})

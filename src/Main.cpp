@@ -9,8 +9,9 @@ int main(int ac, char** av)
     static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn, nTransPos, nSample;
     unsigned int seed;
     static double dMut;
-    static float fSigma;
-    string dist_name, infile, outfileName;
+    static float fSigma, param;
+    bool f;
+    string dist_name, bound, infile, outfileName;
     bool verbose, torus;
 
     ostringstream out;
@@ -37,6 +38,8 @@ int main(int ac, char** av)
             ("torus", po::value<bool>(&torus)->default_value(true),"Landscape Geometry torus (default) or rectangular")
             ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis.")
             ("verbose", po::value<bool>(&verbose)->default_value(false),"Print data to screen")
+            ("sparam", po::value<float>(&param)->default_value(0),"Extra Parameter for dispersal")
+            ("fast", po::value<bool>(&f)->default_value(true),"Use fast dispersal when available")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -136,7 +139,7 @@ int main(int ac, char** av)
 	//Initialize Population
     clock_t start = clock();
 	Population pop(pout, dout, gout, verbose);
-	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, torus);
+	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, bound, param, f);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 	clock_t end = clock();
