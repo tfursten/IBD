@@ -65,9 +65,11 @@ Configuration:
   -t [ --sample ] arg (=1)          Sample every n generations after burn-in
   -f [ --output_file ] arg (=data)  Output File Name
   --seed arg (=0)                   Set PRNG seed, 0 to create random seed
-  --torus arg (=1)                  Landscape geometry torus (default) or 
+  --torus arg (=1)                  Landscape Geometry torus (default) or 
                                     rectangular
   --transect arg (=0)               Set position of transect in X axis.
   --verbose arg (=0)                Print data to screen
+  --sparam arg (=0)                 Extra Parameter for dispersal
+  --fast arg (=1)                   Use fast dispersal when available
 
 
