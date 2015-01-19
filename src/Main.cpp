@@ -12,7 +12,7 @@ int main(int ac, char** av)
     static float fSigma, param;
     bool f;
     string dist_name, bound, infile, outfileName;
-    bool verbose, torus;
+    bool verbose;
 
     ostringstream out;
     try
@@ -29,13 +29,13 @@ int main(int ac, char** av)
             ("generations,g", po::value<int>(&nGenerations)->default_value(10), "Set number of Generations to run after burn-in")
             ("offspring,o", po::value<int>(&nOffspring)->default_value(10), "Set number of offspring per individual")
             ("mut,m", po::value<double>(&dMut)->default_value(0.0), "Set mutation rate")
-            ("distribution,d", po::value<string>(&dist_name)->default_value("disk"), "Set Dispersal Distribution")
+            ("distribution,d", po::value<string>(&dist_name)->default_value("triangular"), "Set Dispersal Distribution")
             ("sigma,s", po::value<float>(&fSigma)->default_value(2.0), "Set dispersal parameter")
             ("burn,b", po::value<int>(&nBurnIn)->default_value(0),"Set Burn-in Period")
             ("sample,t", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
             ("output_file,f", po::value<string>(&outfileName)->default_value(string("data")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
-            ("torus", po::value<bool>(&torus)->default_value(true),"Landscape Geometry torus (default) or rectangular")
+            ("landscape", po::value<string>(&bound)->default_value(string("torus")),"Set boundary conditions: torus or rectangular")
             ("transect", po::value<int>(&nTransPos)->default_value(0),"Set position of transect in X axis.")
             ("verbose", po::value<bool>(&verbose)->default_value(false),"Print data to screen")
             ("sparam", po::value<float>(&param)->default_value(0),"Extra Parameter for dispersal")
@@ -105,15 +105,8 @@ int main(int ac, char** av)
 
         if (seed)
             out << "User set PRNG seed to: " << seed << ".\n";
-        out << "Transect position is set to: " << nTransPos << ".\n";
-        if (torus)
-            out << "Population geometry is a torus.\n";
-        else
-            out << "Population geometry is a rectangle.\n";
-
-
-
-
+        out << "Transect position is set to: " << nTransPos << ".\n"
+        << "Population landscape set to: " << bound << ".\n";
 
     }
 
