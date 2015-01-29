@@ -13,6 +13,9 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
+Herschel/
+ML/
+src/IBD.layout.cbTemp
 
 # Ignore the build directory
 build/*
