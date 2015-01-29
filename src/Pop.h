@@ -48,6 +48,7 @@ private:
 	Dispersal disp;
 	std::ofstream & pout;
 	std::ofstream & dout;
+	std::ofstream & gout;
 	bool verbose;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
