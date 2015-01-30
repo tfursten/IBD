@@ -19,9 +19,14 @@ void Dispersal::set_param(std::string name, float p1, float p2)
     else if (name == "normal")
         param1 = p1 * sqrt(2.0);
     else if (name == "gamma"){
-        assert((p1 != 0) && (p2 != 0));
-        param1 = p1; //not working yet
-        param2 = p2;
+        //Currently using Marsaglia2000 methods which requires a>=1
+        assert((p1 > 0) && (p2 > 0));
+        param1 = p2; //theta (scale parameter)
+        param2 = p1*p1*param1; //k or alpha such that k*theta^2 = sigma^2
+        assert(param2>=1);
+        param3 = param2-(1/3.0); //d
+        param4 = 1/sqrt(9*param3); //c
+        }
     }
     //else if (name == "rectangle") //not working yet
         //assert((p2>=0) && (p3>=0) && (p4>=0));
@@ -46,6 +51,8 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         param1 = p1;
 
 }
+
+
 
 void Dispersal::init_disc(std::string name)
 {
@@ -99,7 +106,50 @@ int Dispersal::cont_ring(xorshift64& rand, int x1, int y1)
 
 int Dispersal::cont_gamma(xorshift64& rand, int x1, int y1)
 {
-    double d = 0; //not finished
+    double d;
+    //Marsalgia2000
+    for(;;){
+        double x = rand_normal(rand,0.0,1);
+        double u = rand.get_double52();
+        double v = pow(1+param4*x,3);
+        if(v<=0)
+            continue;
+        if(u<(1-0.0331*(x*x*x*x))){
+            d = param3*v;
+            break;
+        }
+        if(log(u)<0.5*x*x+param3*(1-v+log(v))){
+            d = param3*v;
+            break;
+        }
+    }
+    /*
+    else{
+        //Martin2013
+        for(;;){
+            double u = rand.get_double52();
+            //double c = 1/tgamma(param2+1);
+            double z,n;
+            if(u<=param5){
+                z = -log(u/param5);
+                //z = rand_exp(1.0)-param5;
+            }
+            else{
+                //z = log(u)/param3;
+                z = -rand_exp(rand, param3);
+            }
+            if(z>=0)
+                n = exp(-z);
+            else
+                n = param4*param3*exp(param3*z);
+            if((exp(-z-exp(z/param2)))/n > u){
+                d = -z/param2;
+                break;
+            }
+        }
+    }*/
+
+    d = d/param1;
     return disperse_cont(rand, x1, y1, d);
 }
 
