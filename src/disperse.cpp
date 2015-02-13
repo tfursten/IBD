@@ -27,7 +27,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         param3 = param2-(1/3.0); //d
         param4 = 1/sqrt(9*param3); //c
         }
-    }
+    
     //else if (name == "rectangle") //not working yet
         //assert((p2>=0) && (p3>=0) && (p4>=0));
         //param1 = p1; //left
@@ -123,31 +123,6 @@ int Dispersal::cont_gamma(xorshift64& rand, int x1, int y1)
             break;
         }
     }
-    /*
-    else{
-        //Martin2013
-        for(;;){
-            double u = rand.get_double52();
-            //double c = 1/tgamma(param2+1);
-            double z,n;
-            if(u<=param5){
-                z = -log(u/param5);
-                //z = rand_exp(1.0)-param5;
-            }
-            else{
-                //z = log(u)/param3;
-                z = -rand_exp(rand, param3);
-            }
-            if(z>=0)
-                n = exp(-z);
-            else
-                n = param4*param3*exp(param3*z);
-            if((exp(-z-exp(z/param2)))/n > u){
-                d = -z/param2;
-                break;
-            }
-        }
-    }*/
 
     d = d/param1;
     return disperse_cont(rand, x1, y1, d);
