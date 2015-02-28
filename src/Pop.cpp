@@ -42,7 +42,7 @@ inline int xy2i(pair<int,int> xy, int mx, int my) {
 	return xy2i(xy.first,xy.second,mx,my);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast, bool haploid)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast)
 {
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
@@ -58,7 +58,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_dSigma = dSigma;
     disp.initialize(dist_name, m_nMaxX, m_nMaxY, fast, m_sBound, dSigma, param);
     out << "Dispersal distribution set to " << disp.getName() << ".\n" ;
-    out << "Extra parameter set to " << param << ".\n"
+    out << "Extra parameter set to " << param << ".\n";
     out << "Landscape set to " << m_sBound << ".\n";
 
 
