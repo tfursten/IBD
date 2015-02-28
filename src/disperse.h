@@ -113,7 +113,7 @@ public:
 private:
     std::string name;
     int maxX, maxY;
-    float param1, param2, param3, param4;
+    float param1, param2, param3, param4, param5;
     void init_disc(std::string name);
     int disperse_cont(xorshift64& rand, int x, int y, double d);
     int disperse_disc(int x1, int y1, int x2, int y2);
