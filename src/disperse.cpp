@@ -28,7 +28,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
             param5 = param1;
             param1 = 1.0+param1;
         }
-        else param5 = 2;
+        else param5 = 1;
         param3 = param2-(1/3.0); //d
         param4 = (1.0/3.0)/sqrt(param3); //c
         
@@ -113,37 +113,29 @@ int Dispersal::cont_gamma(xorshift64&rand, int x1, int y1)
 {
     //Marsalgia and Tsang's Method
     double x, v, u, d;
-    for(;;)
-      {
-        do
-          {
+    for(;;){
+        do{
             x = rand_normal(rand,0.0,1);
             v = 1.0 + param4 * x;
-          }
+        }
         while (v <= 0);
- 
-        v = v * v * v;
+        v = v*v*v;
         u = rand.get_double52();
- 
         if (u < 1 - 0.0331 * x * x * x * x) 
           break;
- 
-        if (log (u) < 0.5 * x * x + param3 * (1 - v + log (v)))
+        if (log(u) < 0.5 * x * x + param3 * (1 - v + log(v)))
           break;
-      }
+    }
 
-    d = param2 * param3 * v;
-    if (param5 > 1)
-    {
+    d = 1/param2 * param3 * v;
+    if(param5 >= 1){
         return disperse_cont(rand, x1, y1, d);
     }
-    else
-    {
+    else{
         u = rand.get_double52();
         d = param2 * param3 * v * pow(u,1.0/param1);
         return disperse_cont(rand, x1, y1, d);
     }
-
 }
 
 
