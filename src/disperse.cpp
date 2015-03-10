@@ -22,7 +22,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         //Currently using Marsaglia2000 methods which requires a>=1
         assert((p1 > 0) && (p2 > 0));
         param1 = p2; //alpha
-        param2 = param1/p1; //beta adjusted so second moment equals 2sigma^2
+        param2 = sqrt((param1*(1+param1))/(2.0*p1*p1)); //beta adjusted so second moment equals 2sigma^2
         assert(param2>0);
         if(param1<1){
             param5 = param1;
