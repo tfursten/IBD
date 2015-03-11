@@ -26,7 +26,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         assert(param2>0);
         if(param1<1){
             param5 = param1;
-            param1 = 1.0+param1;
+            param1 += 1.0;
         }
         else param5 = 1;
         param3 = param1-(1/3.0); //d
@@ -133,7 +133,7 @@ int Dispersal::cont_gamma(xorshift64&rand, int x1, int y1)
     }
     else{
         u = rand.get_double52();
-        d = param2 * param3 * v * pow(u,1.0/param5);
+        d = d * pow(u,1.0/param5);
         return disperse_cont(rand, x1, y1, d);
     }
 }
