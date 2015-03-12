@@ -40,8 +40,8 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         //param3 = p3; //up
         //param4 = p4; //down
     else if (name == "ring"){
-        param1 = p1;
         assert((p2>=0) && (p2<=1));
+        param1 = (sqrt(2.0)*p1)/(1.0-p2);
         param2 = p2; //center
     }
     else if (name == "rayleigh"){
