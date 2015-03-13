@@ -107,7 +107,7 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         std::swap(m_vPop1,m_vPop2);
     }
 
-    dout << "#Gen\tSigma2\tSigma2_1D\tKo\tKe\tf\tIBD" << endl;
+    dout << "#Gen\tSigma2\tSigma2_1D\tSigma3\tKo\tKe\tf\tIBD" << endl;
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
@@ -158,12 +158,30 @@ double minEuclideanDist2(int i, int j, int mx, int my) {
 	return (dx*dx+dy*dy);
 }
 
+double minEuclideanDist3(int i, int j, int mx, int my){
+    auto xy1 = i2xy(i,mx,my);
+    auto xy2 = i2xy(j,mx,my);
+    double dx = abs(1.0*(xy1.first - xy2.first));
+    double dy = abs(1.0*(xy1.second - xy2.second));
+    dx = (dx < mx*0.5) ? dx : mx-dx;
+    dy = (dy < my*0.5) ? dy : my-dy;
+    return (dx*dx*dx + dy*dy*dy);
+}
+
 double euclideanDist2(int i, int j, int mx, int my) {
     auto xy1 = i2xy(i,mx,my);
     auto xy2 = i2xy(j,mx,my);
     double dx = xy1.first - xy2.first;
     double dy = xy1.second - xy2.second;
     return (dx*dx+dy*dy);
+}
+
+double euclideanDist3(int i, int j, int mx, int my){
+    auto xy1 = i2xy(i,mx,my);
+    auto xy2 = i2xy(j,mx,my);
+    double dx = xy1.first - xy2.first;
+    double dy = xy1.second - xy2.second;
+    return (dx*dx*dx+dy*dy*dy);
 }
 
 double minAxialDist2(int i, int j, int mx, int my) {
@@ -191,6 +209,7 @@ void Population::samplePop(int gen)
     int szSample = 0;
     double dSigma2 = 0.0;
     double dSigma2_1D = 0.0;
+    double dSigma3 = 0.0;
     double ko = 0.0;
     double ke = 0.0;
 
@@ -206,11 +225,13 @@ void Population::samplePop(int gen)
         {   
             dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
             dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
+            dSigma3 += minEuclideanDist3(i,p,m_nMaxX,m_nMaxY);
         }
         else
         {
             dSigma2 += euclideanDist2(i,p,m_nMaxX,m_nMaxY);
             dSigma2_1D += axialDist2(i,p,m_nMaxX,m_nMaxY);
+            dSigma3 += euclideanDist3(i,p,m_nMaxX,m_nMaxY);
         }
 
     	for(int j=i; j < i0+m_nMaxY; ++j) {
@@ -237,7 +258,7 @@ void Population::samplePop(int gen)
     if(verbose)
         cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
 
-    dout << gen << "\t" << dSigma2/(2.0*szSample)<<"\t"<< dSigma2_1D/(1.0*szSample) <<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
+    dout << gen << "\t" << dSigma2/(2.0*szSample)<<"\t"<< dSigma2_1D/(1.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
     for(unsigned int k=0; k<vIBD.size();++k)
         dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
     //for(int i=0;i<m_nIndividuals;i++)
