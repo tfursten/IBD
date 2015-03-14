@@ -33,6 +33,10 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         param4 = (1.0/3.0)/sqrt(param3); //c
         
     }
+    else if (name == "pareto"){
+        param1 = p2;
+        param2 = sqrt((2*p1*p1*(-2*param1))/param1);
+    }
     //else if (name == "rectangle") //not working yet
         //assert((p2>=0) && (p3>=0) && (p4>=0));
         //param1 = p1; //left
@@ -41,7 +45,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         //param4 = p4; //down
     else if (name == "ring"){
         assert((p2>=0) && (p2<=1));
-        param1 = (sqrt(2.0)*p1)/(1.0-p2);
+        param1 = sqrt(2.0*p1*p1/(1.0-p2));
         param2 = p2; //center
     }
     else if (name == "rayleigh"){
@@ -136,6 +140,11 @@ int Dispersal::cont_gamma(xorshift64&rand, int x1, int y1)
         d = d * pow(u,1.0/param5);
         return disperse_cont(rand, x1, y1, d);
     }
+}
+
+int Dispersal::cont_pareto(xorshift64& rand, int x1, int y1){
+    double d = param2/pow(1-rand.get_double53(),1/param1);
+    return disperse_cont(rand,x1,y1,d);
 }
 
 
