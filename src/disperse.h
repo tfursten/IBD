@@ -67,7 +67,7 @@ public:
         }
         if(!ff){
             static const char name_keys[][16] = {
-            "exponential", "triangular", "normal", "rayleigh", "ring", "gamma"
+            "exponential", "triangular", "normal", "rayleigh", "ring", "gamma", "pareto"
             };
             static const fptr dist_ops[] = {
                 &Dispersal::cont_exponential,
@@ -75,7 +75,8 @@ public:
                 &Dispersal::cont_halfNormal,
                 &Dispersal::cont_rayleigh,
                 &Dispersal::cont_ring,
-                &Dispersal::cont_gamma
+                &Dispersal::cont_gamma,
+                &Dispersal::cont_pareto
             };
             int pos = key_switch(dist_name, name_keys); 
             if( pos == -1) {
@@ -103,6 +104,7 @@ public:
     int cont_rayleigh(xorshift64& rand, int x1, int y1);
     int cont_ring(xorshift64& rand, int x1, int y1);
     int cont_gamma(xorshift64& rand, int x1, int y1);
+    int cont_pareto(xorshift64& rand, int x1, int y1);
     int disc_triangular(xorshift64& rand, int x1, int y1);
     int disc_rayleigh(xorshift64& rand, int x1, int y1);
     int disc_ring(xorshift64& rand, int x1, int y1);
