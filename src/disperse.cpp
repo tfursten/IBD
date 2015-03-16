@@ -35,7 +35,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
     }
     else if (name == "pareto"){
         param1 = p2; //alpha
-        param2 = sqrt((2*p1*p1*(-2*param1))/param1); //xmax
+        param2 = sqrt((2*p1*p1*(param1-2))/param1); //xmax
     }
     //else if (name == "rectangle") //not working yet
         //assert((p2>=0) && (p3>=0) && (p4>=0));
