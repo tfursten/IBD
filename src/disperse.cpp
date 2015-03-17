@@ -52,7 +52,8 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         param1 = p1;
         assert(p2>=0);
         if(p2 != 0){
-            param2 = p2;
+            param2 = sqrt(2*param1*param1-(p2*param1*p2*param1)); 
+            param1 *= p2;
         }
         else param2 = p1;
     }
