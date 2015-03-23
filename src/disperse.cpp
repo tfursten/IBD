@@ -51,7 +51,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
     else if (name == "rayleigh"){
         param1 = p1*cos(M_PI/4.0);//x
         param2 = p1*sin(M_PI/4.0);//y
-        param3 = sqrt((p1*p1)/2.0) //sigma
+        param3 = sqrt((p1*p1)/2.0); //sigma
         //assert(p2>=0);
         //if(p2 != 0){
             //param2 = sqrt(2*param1*param1-(p2*param1*p2*param1)); 
