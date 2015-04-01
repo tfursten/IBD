@@ -62,7 +62,7 @@ public:
 		union { uint64_t u; double d; } a;
 		a.u = get_raw();
 		a.u = (a.u >> 12) | UINT64_C(0x3FF0000000000000);
-		double q = (a.u&2048) ? (1.0-(DBL_EPSILON/2.0)) : 1.0;
+		double q = (a.u & 2048) ? (1.0-(DBL_EPSILON/2.0)) : 1.0;
 		return a.d-q;
 	}
 
