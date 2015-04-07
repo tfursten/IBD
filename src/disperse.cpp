@@ -50,16 +50,19 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         param1 = p1;
         param2 = p2; //center
     }
-    else if (name == "rayleigh"){
+
+    else if (name == "rice"){
         param1 = p1*cos(M_PI/4.0);//x
         param2 = p1*sin(M_PI/4.0);//y
         param3 = sqrt((p1*p1)/2.0); //sigma
-        //assert(p2>=0);
-        //if(p2 != 0){
-            //param2 = sqrt(2*param1*param1-(p2*param1*p2*param1)); 
-            //param1 *= p2;
-        //}
-        //else param2 = p1;
+    }
+    else if (name == "rayleigh"){
+        assert(p2>=0);
+        if(p2 != 0){
+            param1 = p1*p2; //sigma_x
+            param2 = sqrt(2*p1*p1-(param1*param1)); //sigma_y
+        }
+        else param2 = p1;
     }
     else
         param1 = p1;
@@ -103,10 +106,17 @@ int Dispersal::cont_halfNormal(xorshift64& rand, int x1, int y1)
 int Dispersal::cont_rayleigh(xorshift64& rand, int x1, int y1)
 {
 
+    double dX = floor(rand_normal(rand,0,param2)+x1+0.5);
+    double dY = floor(rand_normal(rand,0,param1)+y1+0.5);
+    return (this->*boundary)(dX,dY);
+
+}
+
+int Dispersal::cont_rice(xorshift64& rand, int x1, int y1)
+{
     double dX = floor(rand_normal(rand,param1,param3)+x1+0.5);
     double dY = floor(rand_normal(rand,param2,param3)+y1+0.5);
     return (this->*boundary)(dX,dY);
-
 }
 
 int Dispersal::cont_ring(xorshift64& rand, int x1, int y1)
