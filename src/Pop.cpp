@@ -201,9 +201,9 @@ double axialDist2(int i, int j, int mx, int my) {
 
 void Population::samplePop(int gen)
 {
-    vector<int> vIBD(1+m_nMaxY/2,0);
-    //vector<int> vgIBD(1+m_nMaxY/2,0);
-    vector<int> vN(1+m_nMaxY/2,0);
+    vector<int> vIBD(1+m_nMaxX/2,0);
+    vector<int> vgIBD(1+m_nMaxX/2,0);
+    vector<int> vN(1+m_nMaxX/2,0);
     typedef map<int,int> mapType;
     mapType alleleMap;
     int szSample = 0;
@@ -213,8 +213,11 @@ void Population::samplePop(int gen)
     double ko = 0.0;
     double ke = 0.0;
 
-    int i0 = m_nTransPos * m_nMaxY;
-    for(int i = i0; i < i0+m_nMaxY; ++i) {
+    int i0 = m_nTransPos * m_nMaxX;
+    i0 += m_nMaxX/4 //integer division should truncate
+    cout << i0 << endl;
+    //loop through inner 50% of transect
+    for(int i = i0; i < i0+ceil(m_nMaxX/2.0); ++i) {
     	individual ind = m_vPop2[i];
         if(ind.nWeight == 0)
     		continue;
@@ -242,9 +245,9 @@ void Population::samplePop(int gen)
        		if(ind.nAllele == m_vPop2[j].nAllele) {
     			vIBD[k] += 1;
     		}
-           // if(ind.nParent_id == m_vPop2[j].nParent_id) {
-             //   vgIBD[k] += 1;
-           // }
+           if(ind.nParent_id == m_vPop2[j].nParent_id) {
+                vgIBD[k] += 1;
+            }
     		vN[k] += 1;
     	}
     }
