@@ -116,17 +116,18 @@ int main(int ac, char** av)
         return 1;
     }
 
-    string datafile = outfileName+".txt";
+    string datafile = "IBD"+outfileName+".txt";
     string paramfile = outfileName+"_settings.txt";
-    string popfile = outfileName+"pop.txt";
-    cout << "Data saved to: " << datafile << endl;
+    string datafile2 = "gIBD"+outfileName+".txt";
+    cout << "IBD Data saved to: " << datafile << endl;
+    cout << "gIBD Data saved to: " << datafile2 << endl;
     cout << "Parameters saved to: " << paramfile << endl;
     ofstream pout;
     ofstream dout;
     ofstream gout;
     pout.open(paramfile);
     dout.open(datafile);
-    gout.open(popfile);
+    gout.open(datafile2);
     pout << out.str();
     cout << out.str();
 	//Initialize Population

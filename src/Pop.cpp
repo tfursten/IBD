@@ -73,7 +73,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     for(int iii=0; iii<m_nIndividuals; iii++) {
         m_vPop1.emplace_back(1,iii+1,iii);
     }
-    m_vPop2.assign(m_nIndividuals, individual(0,0,0));
+    m_vPop2.assign(m_nIndividuals, individual());
 
     cout << out.str();
     pout << out.str();
@@ -87,7 +87,7 @@ void Population::setMutCount() {
 
 //Each mutational event creates a new allele unlike any other allele currently in the population
 //so that identity in state for two or more alleles is always an indication of idenity by descent.
-int Population::mutation(int allele)
+int Population::mutate(int allele)
 {
     if (--m_nMutCount > 0)
         return allele;
@@ -107,7 +107,8 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         std::swap(m_vPop1,m_vPop2);
     }
 
-    dout << "#Gen\tSigma2\tSigma2_1D\tSigma3\tKo\tKe\tf\tIBD" << endl;
+    dout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
+    gout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tgIBD" << endl;
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
@@ -121,10 +122,13 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
 
 void Population::step(int parent)
 {
-    unsigned int &parentHere = m_vPop1[parent].nWeight;
-    if(parentHere == 0)
+    //unsigned int &parentHere = m_vPop1[parent].nWeight[0];
+    individual &parentHere = m_vPop1[parent];
+    if(parentHere.nWeight[0] == 0)
     	return;
-    parentHere=0;
+    parentHere.nWeight[0] = 0;
+    parentHere.nWeight[1] = 0;
+    parentHere.threshold = 0;
     pair<int,int> xy = i2xy(parent,m_nMaxX,m_nMaxY);
     int nX = xy.first;
     int nY = xy.second;
@@ -133,17 +137,27 @@ void Population::step(int parent)
         int nNewCell = disp(m_myrand,nX,nY);
         if (nNewCell == -1)
         {
-            mutation(m_vPop1[parent].nAllele);
+            mutate(parentHere.nAllele[0]);
             continue;
         }
+        individual &parentThere = m_vPop2[nNewCell];
         unsigned int nSeedWeight = m_myrand.get_uint32();
-        unsigned int nCellWeight = m_vPop2[nNewCell].nWeight;
-        int offAllele = mutation(m_vPop1[parent].nAllele);
+        //I figure that the minimum key value (threshold) will become large
+        //quickly and will be less likely to be replaced
+        //so I stored it as a variable to avoid having 
+        //to calulate the min each time.
+        unsigned int nCellWeight = parentThere.threshold;
+        int offAllele = mutate(parentHere.nAllele[0]);
         if (nSeedWeight > nCellWeight)
         {
-            m_vPop2[nNewCell].nAllele=offAllele;
-            m_vPop2[nNewCell].nParent_id=parent;
-            m_vPop2[nNewCell].nWeight=nSeedWeight;
+            int r = (parentThere.nWeight[0]<=parentThere.nWeight[1])? 0 : 1;
+            parentThere.nAllele[r] = offAllele;
+            parentThere.nWeight[r] = nSeedWeight;
+            parentThere.nParent_id[r] = parent;
+            parentThere.threshold = min(parentThere.nWeight[0],parentThere.nWeight[1]);
+            //m_vPop2[nNewCell].nAllele=offAllele;
+            //m_vPop2[nNewCell].nParent_id=parent;
+            //m_vPop2[nNewCell].nWeight=nSeedWeight;
         }
     }
 }
@@ -183,7 +197,7 @@ double euclideanDist3(int i, int j, int mx, int my){
     double dy = xy1.second - xy2.second;
     return (dx*dx*dx+dy*dy*dy);
 }
-
+/*
 double minAxialDist2(int i, int j, int mx, int my) {
     auto xy1 = i2xy(i,mx,my);
     auto xy2 = i2xy(j,mx,my);
@@ -198,58 +212,79 @@ double axialDist2(int i, int j, int mx, int my) {
     double dy = abs(1.0*(xy1.second - xy2.second));
     return dy*dy;
 }
+*/
 
 void Population::samplePop(int gen)
 {
-    vector<int> vIBD(1+m_nMaxX/2,0);
-    vector<int> vgIBD(1+m_nMaxX/2,0);
-    vector<int> vN(1+m_nMaxX/2,0);
+    vector<int> vIBD;
+    vector<int> vgIBD;
+    vector<int> vN;
     typedef map<int,int> mapType;
     mapType alleleMap;
     int szSample = 0;
     double dSigma2 = 0.0;
-    double dSigma2_1D = 0.0;
+    //double dSigma2_1D = 0.0;
     double dSigma3 = 0.0;
     double ko = 0.0;
     double ke = 0.0;
 
     int i0 = m_nTransPos * m_nMaxX;
-    i0 += m_nMaxX/4 //integer division should truncate
+    i0 += m_nMaxX/4; //integer division should truncate
+    int lenTrans = ceil(m_nMaxX/2.0);
     cout << i0 << endl;
     //loop through inner 50% of transect
-    for(int i = i0; i < i0+ceil(m_nMaxX/2.0); ++i) {
-    	individual ind = m_vPop2[i];
-        if(ind.nWeight == 0)
+    for(int i = i0; i < i0+lenTrans; ++i) {
+    	individual & ind = m_vPop2[i];
+        if(ind.nWeight[0] == 0)
     		continue;
     	szSample += 1;
-    	alleleMap[ind.nAllele] += 1;
-    	int p = ind.nParent_id;
+    	alleleMap[ind.nAllele[0]] += 1;
+    	int & p = ind.nParent_id[0];
         if (m_sBound == "torus")
         {   
+            int size = 1+lenTrans/2;
+            vIBD.resize(size,0);
+            vgIBD.resize(size,0);
+            vN.resize(size,0);
             dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
-            dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
+            //dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
             dSigma3 += minEuclideanDist3(i,p,m_nMaxX,m_nMaxY);
+
         }
         else
         {
+            int size = lenTrans;
+            vIBD.resize(size,0);
+            vgIBD.resize(size,0);
+            vN.resize(size,0);
             dSigma2 += euclideanDist2(i,p,m_nMaxX,m_nMaxY);
-            dSigma2_1D += axialDist2(i,p,m_nMaxX,m_nMaxY);
-            dSigma3 += euclideanDist3(i,p,m_nMaxX,m_nMaxY);
+            //dSigma2_1D += axialDist2(i,p,m_nMaxX,m_nMaxY);
+            dSigma3 += euclideanDist3(i,p,m_nMaxX,m_nMaxY);        
         }
 
-    	for(int j=i; j < i0+m_nMaxY; ++j) {
-    		if(m_vPop2[j].nWeight == 0)
-    			continue;
-    		int k = j-i;
-    		k = (k <= m_nMaxY/2) ? k : m_nMaxY-k;
-       		if(ind.nAllele == m_vPop2[j].nAllele) {
-    			vIBD[k] += 1;
-    		}
-           if(ind.nParent_id == m_vPop2[j].nParent_id) {
-                vgIBD[k] += 1;
+        for(int j=i; j < i0+lenTrans; ++j) {
+            individual & ind2 = m_vPop2[j];
+            if(ind2.nWeight[0] == 0)
+                continue;
+            int k = j-i;
+            if(m_sBound == "torus")
+                k = (k <= m_nMaxY/2) ? k : m_nMaxY-k;
+            if(k==0){
+                if(ind.nAllele[0]==ind.nAllele[1])
+                    vIBD[k] += 1;
+                if(m_vPop1[p].nParent_id[0] == m_vPop1[ind.nParent_id[1]].nParent_id[0])
+                    vgIBD[k] += 1;
             }
-    		vN[k] += 1;
-    	}
+            else{
+                if(ind.nAllele[0] == ind2.nAllele[0])
+                    vIBD[k] += 1;
+                if(m_vPop1[p].nParent_id[0] == m_vPop1[ind2.nParent_id[0]].nParent_id[0]) 
+                    vgIBD[k] += 1;
+            }
+            vN[k] += 1;
+        }
+
+
     }
     int df = 0;
     BOOST_FOREACH(mapType::value_type & vv, alleleMap){
@@ -261,9 +296,12 @@ void Population::samplePop(int gen)
     if(verbose)
         cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
 
-    dout << gen << "\t" << dSigma2/(2.0*szSample)<<"\t"<< dSigma2_1D/(1.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
-    for(unsigned int k=0; k<vIBD.size();++k)
-        dout << vIBD[k] << "/" << vN[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
+    dout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
+    gout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
+    for(unsigned int k=0; k<vIBD.size();++k){
+        dout << vIBD[k] << "/" << vN[k] << ((k < vIBD.size()-1) ? "\t" : "\n");
+        gout << vgIBD[k] << "/" << vN[k] << ((k < vgIBD.size()-1) ? "\t" : "\n");
+    }
     //for(int i=0;i<m_nIndividuals;i++)
     //{
       //  if(m_vPop2[i].nWeight <= 0)

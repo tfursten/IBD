@@ -19,14 +19,26 @@
 
 struct individual
 {
-    unsigned int nWeight;
-    int nAllele;
-    int nParent_id;
+    vector<unsigned int> nWeight;
+    vector<int> nAllele;
+    vector<int> nParent_id;
+    unsigned int threshold;
 
-    individual(unsigned int weight, int allele, int parent_id) {
-		nWeight = weight;
-        nAllele = allele;
-        nParent_id = parent_id;
+    individual(){
+    	nWeight.assign(2,0);
+    	nAllele.assign(2,0);
+    	nParent_id.assign(2,0);
+    	threshold = 0;
+    }
+
+    individual(unsigned weight, int allele, int parent_id) {
+		nWeight.assign(2,0);
+    	nAllele.assign(2,0);
+    	nParent_id.assign(2,0);
+		nWeight[0] = weight;
+        nAllele[0] = allele;
+        nParent_id[0] = parent_id;
+        threshold = 0;
     }
 };
 
@@ -59,7 +71,7 @@ private:
 	int m_nAlleleID;
 	void setMutCount();
 	void step(int parent);
-	int mutation(int allele);
+	int mutate(int allele);
 	void samplePop(int gen);
 
 protected:
