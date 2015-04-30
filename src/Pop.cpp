@@ -52,6 +52,8 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
     m_nTransPos = nTransPos;
+    m_nLenTrans = ceil(m_nMaxX/2.0);
+    m_nTransIdx = m_nTransPos*m_nMaxX + m_nMaxX/4;
     setMutCount();
     ostringstream out;
     m_nSample = nSample;
@@ -185,16 +187,16 @@ double minEuclideanDist3(int i, int j, int mx, int my){
 double euclideanDist2(int i, int j, int mx, int my) {
     auto xy1 = i2xy(i,mx,my);
     auto xy2 = i2xy(j,mx,my);
-    double dx = xy1.first - xy2.first;
-    double dy = xy1.second - xy2.second;
+    double dx = abs(1.0*(xy1.first - xy2.first));
+    double dy = abs(1.0*(xy1.second - xy2.second));
     return (dx*dx+dy*dy);
 }
 
 double euclideanDist3(int i, int j, int mx, int my){
     auto xy1 = i2xy(i,mx,my);
     auto xy2 = i2xy(j,mx,my);
-    double dx = xy1.first - xy2.first;
-    double dy = xy1.second - xy2.second;
+    double dx = abs(1.0*(xy1.first - xy2.first));
+    double dy = abs(1.0*(xy1.second - xy2.second));
     return (dx*dx*dx+dy*dy*dy);
 }
 /*
@@ -216,9 +218,9 @@ double axialDist2(int i, int j, int mx, int my) {
 
 void Population::samplePop(int gen)
 {
-    vector<int> vIBD;
-    vector<int> vgIBD;
-    vector<int> vN;
+    vector<int> vIBD(m_nLenTrans,0);
+    vector<int> vgIBD(m_nLenTrans,0);
+    vector<int> vN(m_nLenTrans,0);
     typedef map<int,int> mapType;
     mapType alleleMap;
     int szSample = 0;
@@ -227,48 +229,35 @@ void Population::samplePop(int gen)
     double dSigma3 = 0.0;
     double ko = 0.0;
     double ke = 0.0;
-
-    int i0 = m_nTransPos * m_nMaxX;
-    i0 += m_nMaxX/4; //integer division should truncate
-    int lenTrans = ceil(m_nMaxX/2.0);
-    cout << i0 << endl;
     //loop through inner 50% of transect
-    for(int i = i0; i < i0+lenTrans; ++i) {
+    for(int i = m_nTransIdx; i < m_nTransIdx+m_nLenTrans; ++i) {
     	individual & ind = m_vPop2[i];
         if(ind.nWeight[0] == 0)
     		continue;
     	szSample += 1;
     	alleleMap[ind.nAllele[0]] += 1;
     	int & p = ind.nParent_id[0];
+
         if (m_sBound == "torus")
         {   
-            int size = 1+lenTrans/2;
-            vIBD.resize(size,0);
-            vgIBD.resize(size,0);
-            vN.resize(size,0);
             dSigma2 += minEuclideanDist2(i,p,m_nMaxX,m_nMaxY);
-            //dSigma2_1D += minAxialDist2(i,p,m_nMaxX,m_nMaxY);
             dSigma3 += minEuclideanDist3(i,p,m_nMaxX,m_nMaxY);
-
         }
         else
         {
-            int size = lenTrans;
-            vIBD.resize(size,0);
-            vgIBD.resize(size,0);
-            vN.resize(size,0);
             dSigma2 += euclideanDist2(i,p,m_nMaxX,m_nMaxY);
-            //dSigma2_1D += axialDist2(i,p,m_nMaxX,m_nMaxY);
             dSigma3 += euclideanDist3(i,p,m_nMaxX,m_nMaxY);        
         }
-
-        for(int j=i; j < i0+lenTrans; ++j) {
+ 
+        for(int j=i; j < m_nTransIdx+m_nLenTrans; ++j) {
             individual & ind2 = m_vPop2[j];
             if(ind2.nWeight[0] == 0)
                 continue;
             int k = j-i;
-            if(m_sBound == "torus")
-                k = (k <= m_nMaxY/2) ? k : m_nMaxY-k;
+            //if(m_sBound == "torus")
+                //***NOT NECESSARY WHEN USING 50% TRANSECT
+                //k = (k <= m_nMaxX/2) ? k : m_nMaxX-k;
+   
             if(k==0){
                 if(ind.nAllele[0]==ind.nAllele[1])
                     vIBD[k] += 1;

@@ -160,7 +160,7 @@ int Dispersal::cont_gamma(xorshift64&rand, int x1, int y1)
 int Dispersal::cont_pareto(xorshift64& rand, int x1, int y1){
     
     //double d = param2/pow(1-rand.get_double53(),1/param1);
-    double d = param2*exp(rand_exp(rand,param1));
+    double d = param2*exp(rand_exp(rand,param1)); //faster
     return disperse_cont(rand,x1,y1,d);
 }
 

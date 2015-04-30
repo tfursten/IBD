@@ -56,6 +56,8 @@ private:
 	int m_nIndividuals;
 	int m_nSample;
 	int m_nTransPos;
+	int m_nLenTrans;
+	int m_nTransIdx;
 	xorshift64 m_myrand;
 	Dispersal disp;
 	std::ofstream & pout;
