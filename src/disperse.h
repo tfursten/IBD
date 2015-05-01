@@ -35,10 +35,14 @@ public:
     template<class A>
     bool initialize(A &dist_name, int x, int y, bool fast, std::string landscape, float p1, float p2=0) {
         bool ff = fast;
-        if(landscape == "torus")
+        if(landscape == "torus"){
             boundary = &Dispersal::periodic;
-        else
+            std::cout << "Periodic Boundary" << std::endl;
+        }
+        else{
             boundary = &Dispersal::absorbing;
+            std::cout << "Absorbing Boundary" << std::endl;
+        }
         maxX = x;
         maxY = y;
 

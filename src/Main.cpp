@@ -116,9 +116,9 @@ int main(int ac, char** av)
         return 1;
     }
 
-    string datafile = "IBD"+outfileName+".txt";
+    string datafile = outfileName+"_IBD.txt";
     string paramfile = outfileName+"_settings.txt";
-    string datafile2 = "gIBD"+outfileName+".txt";
+    string datafile2 = outfileName+"_gIBD.txt";
     cout << "IBD Data saved to: " << datafile << endl;
     cout << "gIBD Data saved to: " << datafile2 << endl;
     cout << "Parameters saved to: " << paramfile << endl;
