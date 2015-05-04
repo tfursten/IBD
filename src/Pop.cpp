@@ -110,7 +110,8 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
     }
 
     dout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
-    gout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tgIBD" << endl;
+    gout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
+    iout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
         for(int parent=0; parent<m_nIndividuals;parent++)
@@ -220,6 +221,7 @@ void Population::samplePop(int gen)
 {
     vector<int> vIBD(m_nLenTrans,0);
     vector<int> vgIBD(m_nLenTrans,0);
+    vector<int> vpIBD(m_nLenTrans,0);
     vector<int> vN(m_nLenTrans,0);
     typedef map<int,int> mapType;
     mapType alleleMap;
@@ -257,18 +259,29 @@ void Population::samplePop(int gen)
             //if(m_sBound == "torus")
                 //***NOT NECESSARY WHEN USING 50% TRANSECT
                 //k = (k <= m_nMaxX/2) ? k : m_nMaxX-k;
-   
+            //within individual
             if(k==0){
+                // count IIS
                 if(ind.nAllele[0]==ind.nAllele[1])
                     vIBD[k] += 1;
+                // count grandparental IBD
                 if(m_vPop1[p].nParent_id[0] == m_vPop1[ind.nParent_id[1]].nParent_id[0])
                     vgIBD[k] += 1;
+                // count parental IBD
+                if(p == ind.nParent_id[1])
+                    vpIBD[k] += 1;
             }
+            //between individuals
             else{
+                // count IIS
                 if(ind.nAllele[0] == ind2.nAllele[0])
                     vIBD[k] += 1;
+                // count grandparental IBD
                 if(m_vPop1[p].nParent_id[0] == m_vPop1[ind2.nParent_id[0]].nParent_id[0]) 
                     vgIBD[k] += 1;
+                // count parental IBD
+                if(p == ind2.nParent_id[0])
+                    vpIBD[k] += 1;
             }
             vN[k] += 1;
         }
@@ -287,9 +300,11 @@ void Population::samplePop(int gen)
 
     dout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
     gout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
+    iout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
     for(unsigned int k=0; k<vIBD.size();++k){
         dout << vIBD[k] << "/" << vN[k] << ((k < vIBD.size()-1) ? "\t" : "\n");
         gout << vgIBD[k] << "/" << vN[k] << ((k < vgIBD.size()-1) ? "\t" : "\n");
+        iout << vpIBD[k] << "/" << vN[k] << ((k < vpIBD.size()-1) ? "\t" : "\n");
     }
     //for(int i=0;i<m_nIndividuals;i++)
     //{

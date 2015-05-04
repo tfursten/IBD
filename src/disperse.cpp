@@ -62,7 +62,10 @@ void Dispersal::set_param(std::string name, float p1, float p2)
             param1 = p1*p2; //sigma_x
             param2 = sqrt(2*p1*p1-(param1*param1)); //sigma_y
         }
-        else param2 = p1;
+        else{ 
+            param1 = p1;
+            param2 = p1;
+        }
     }
     else
         param1 = p1;
@@ -106,8 +109,8 @@ int Dispersal::cont_halfNormal(xorshift64& rand, int x1, int y1)
 int Dispersal::cont_rayleigh(xorshift64& rand, int x1, int y1)
 {
 
-    double dX = floor(rand_normal(rand,0,param2)+x1+0.5);
-    double dY = floor(rand_normal(rand,0,param1)+y1+0.5);
+    double dX = floor(rand_normal(rand,0,param1)+x1+0.5);
+    double dY = floor(rand_normal(rand,0,param2)+y1+0.5);
     return (this->*boundary)(dX,dY);
 
 }

@@ -116,23 +116,27 @@ int main(int ac, char** av)
         return 1;
     }
 
-    string datafile = outfileName+"_IBD.txt";
-    string paramfile = outfileName+"_settings.txt";
-    string datafile2 = outfileName+"_gIBD.txt";
-    cout << "IBD Data saved to: " << datafile << endl;
-    cout << "gIBD Data saved to: " << datafile2 << endl;
-    cout << "Parameters saved to: " << paramfile << endl;
+    string ibd_data = outfileName+"_IBD.txt";
+    string param_file = outfileName+"_settings.txt";
+    string gibd_data = outfileName+"_gIBD.txt";
+    string pibd_data = outfileName+"_pIBD.txt";
+    cout << "IBD Data saved to: " << ibd_data << endl;
+    cout << "pIBD Data saved to: " << pibd_data << endl;
+    cout << "gIBD Data saved to: " << gibd_data << endl;
+    cout << "Parameters saved to: " << param_file << endl;
     ofstream pout;
     ofstream dout;
     ofstream gout;
-    pout.open(paramfile);
-    dout.open(datafile);
-    gout.open(datafile2);
+    ofstream iout;
+    pout.open(param_file);
+    dout.open(ibd_data);
+    gout.open(gibd_data);
+    iout.open(pibd_data);
     pout << out.str();
     cout << out.str();
 	//Initialize Population
     clock_t start = clock();
-	Population pop(pout, dout, gout, verbose);
+	Population pop(pout, dout, gout, iout, verbose);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, bound, param, f);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
