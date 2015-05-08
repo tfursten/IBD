@@ -143,7 +143,10 @@ int main(int ac, char** av)
 	clock_t end = clock();
 	float seconds = (float)(end-start)/ CLOCKS_PER_SEC;
     cout << "TIME: " << seconds << endl;
-
+    pout.close();
+    dout.close();
+    gout.close();
+    iout.close();
 
 
 	return 0;

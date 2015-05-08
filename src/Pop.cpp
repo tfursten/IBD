@@ -261,6 +261,9 @@ void Population::samplePop(int gen)
                 //k = (k <= m_nMaxX/2) ? k : m_nMaxX-k;
             //within individual
             if(k==0){
+                //check for presence of competition allele
+                if(ind.nWeight[1] == 0)
+                    continue;
                 // count IIS
                 if(ind.nAllele[0]==ind.nAllele[1])
                     vIBD[k] += 1;
@@ -270,6 +273,7 @@ void Population::samplePop(int gen)
                 // count parental IBD
                 if(p == ind.nParent_id[1])
                     vpIBD[k] += 1;
+                vN[k] += 1;
             }
             //between individuals
             else{
@@ -282,8 +286,9 @@ void Population::samplePop(int gen)
                 // count parental IBD
                 if(p == ind2.nParent_id[0])
                     vpIBD[k] += 1;
+                vN[k] += 1;
             }
-            vN[k] += 1;
+            
         }
 
 
