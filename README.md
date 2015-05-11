@@ -33,16 +33,13 @@ The Pareto dispersal function takes two arguments, sigma and alpha and the Xmin 
 ###Rayleigh
 The Rayleigh dispersal function may take one or two arguments, sigma_x and sigma_y.  If only a single argument is given, sigma will be the same for each dimension and result in an isometric 2-dimensional normal distribution.  For the sake of uniformity, this was called the Rayleigh dispersal function because it originally returned polar coordinates with Rayleigh distributed distances and a uniform angle; however, this required an inefficient converion from polar to Cartesian coordinates. We instead draw axial offset distances from a normal distribution with variance sigma_x^2 (or sigma_y^2) using an implementation of the ziggurat rejection sampling algorithm.  There is a "fast" version of this disperal function available which precalculates the probability of dispersing on a discrete lattice.  Once the dispersal probabilities are calculated we use the efficient Alias method to sample from this discrete probability distribution.  
 ###Rice
-
+The Rice dispersal function takes two arguments, sigma and angle.  This distribution results in an isometric 2-dimensional normal distribution where the mean has shifted away from the origin to a polar coordinate (v,angle). The v parameter is calculated so that the second moment of the distribution is equal to 2*sigma^2.  Axial distances are drawn from two normal distributions with means v*cos(angle) and v*sin(angle) and variance sigma^2 using an implementation of the ziggurat rejection sampling algorithm.
 ###Ring
+The ring dispersal function takes two arguments, sigma and p.  This distribution returns a polar coordinates with a constant distance sigma and a uniform angle. The p parameter determines the probability of not dispersing away from the origin.  There is a fast version of this dispersal function available which precalcuates the probability of dispersing on a discrete lattice.  Once the dispersal probabilities are calculated we use the efficient Alias method to sample from this discrete probability distribution.
 ###Triangular
-The Triangular dispersal function takes a si
+The triangular dispersal function takes a single argument, sigma, and returns polar coordinates with triangular distributed distance with a=0, b=c=2*sigma, and a uniform angle. The distance values are generated using inverse transform sampling.  There is a fast version of this dispersal function available which precalcuates the probability of dispersing on a discrete lattice.  Once the dispersal probabilities are calculated we use the efficient Alias method to sample from this discrete probability distribution.
 ###Uniform
-
-
-
-
-
+The uniform dispersal function takes two arguments, the x and y dimensions of the landscape.  It returns a new xy coordinate anywhere on the landscape with uniform probability.  
 
 Compiling from Source Code
 --------------------------
