@@ -2,7 +2,8 @@ IBD
 ===
 Isolation by distance simulation
 
-A spatially explicit individual-based simulation to model dispersal on a lattice using different dispersal distribution functions. [Arxiv](http://arxiv.org/pdf/1501.01085v1.pdf)
+A spatially explicit individual-based simulation to model dispersal on a lattice using different dispersal distribution functions. 
+[arXiv](http://arxiv.org/pdf/1501.01085v1.pdf)
 Author
 ------
 Tara Furstenau  
