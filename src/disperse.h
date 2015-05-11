@@ -52,7 +52,7 @@ public:
             };
             static const fptr dist_ops[] = {
                 &Dispersal::disc_triangular,
-                &Dispersal::disc_rayleigh,
+                &Dispersal::cont_rayleigh,
                 &Dispersal::disc_ring,
                 &Dispersal::disc_uniform
             };
@@ -77,7 +77,7 @@ public:
                 &Dispersal::cont_exponential,
                 &Dispersal::cont_triangular,
                 &Dispersal::cont_halfNormal,
-                &Dispersal::cont_rayleigh,
+                &Dispersal::disc_rayleigh,
                 &Dispersal::cont_ring,
                 &Dispersal::cont_gamma,
                 &Dispersal::cont_pareto,
