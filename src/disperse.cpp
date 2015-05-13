@@ -11,7 +11,7 @@ inline int xy2i(int x, int y, int mx, int my) {
 
 void Dispersal::set_param(std::string name, float p1, float p2)
 {
-    assert(p1>=0);
+    assert(p1>0);
     if (name == "exponential")
         param1 = 1.0/p1;
     else if (name == "triangular")
@@ -225,9 +225,12 @@ int Dispersal::periodic(int x, int y)
 
 int Dispersal::disperse_cont(xorshift64& rand, int x, int y, double d)
 {
-    double a = rand.get_double52() * 2.0 * M_PI;
-    double newX = floor(d*cos(a)+x+0.5);
-    double newY = floor(d*sin(a)+y+0.5);
+    double a = rand.get_double53() * 2.0 * M_PI;
+    //cout << a << endl;
+    //int newX = floor(d*cos(a)+x+0.5);
+    //int newY = floor(d*sin(a)+y+0.5);
+    int newX = round(d*cos(a)+x);
+    int newY = round(d*sin(a)+y);
     int i = (this->*boundary)(newX,newY);
     return i;
 
@@ -235,8 +238,8 @@ int Dispersal::disperse_cont(xorshift64& rand, int x, int y, double d)
 
 int Dispersal::disperse_disc(int x1, int y1, int x2, int y2)
 {
-    double newX = x1+x2;
-    double newY = y1+y2;
+    int newX = x1+x2;
+    int newY = y1+y2;
     int i = (this->*boundary)(newX,newY);
     return i;
 }

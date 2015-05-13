@@ -48,13 +48,12 @@ public:
 
         if(ff){
             static const char name_keys[][16] = {
-            "triangular", "rayleigh", "ring", "uniform"
+            "triangular", "rayleigh", "ring"
             };
             static const fptr dist_ops[] = {
                 &Dispersal::disc_triangular,
                 &Dispersal::cont_rayleigh,
-                &Dispersal::disc_ring,
-                &Dispersal::disc_uniform
+                &Dispersal::disc_ring
             };
             int pos = key_switch(dist_name, name_keys); 
             if(pos == -1) {
@@ -71,7 +70,7 @@ public:
         }
         if(!ff){
             static const char name_keys[][16] = {
-            "exponential", "triangular", "normal", "rayleigh", "ring", "gamma", "pareto", "rice"
+            "exponential", "triangular", "normal", "rayleigh", "ring", "gamma", "pareto", "rice", "uniform"
             };
             static const fptr dist_ops[] = {
                 &Dispersal::cont_exponential,
@@ -81,7 +80,8 @@ public:
                 &Dispersal::cont_ring,
                 &Dispersal::cont_gamma,
                 &Dispersal::cont_pareto,
-                &Dispersal::cont_rice
+                &Dispersal::cont_rice,
+                &Dispersal::disc_uniform
             };
             int pos = key_switch(dist_name, name_keys); 
             if( pos == -1) {

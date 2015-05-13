@@ -16,29 +16,33 @@
 #include "disk.h"
 
 
-
+typedef pair<int,int> xyCoord;
 struct individual
 {
-    vector<unsigned int> nWeight;
-    vector<int> nAllele;
-    vector<int> nParent_id;
-    unsigned int threshold;
+    unsigned int nWeight;
+    int nAllele;
+    int nAllele2;
+    int nParent_id;
+    int nParent_id2;
+    xyCoord xy;
 
-    individual(){
-    	nWeight.assign(2,0);
-    	nAllele.assign(2,0);
-    	nParent_id.assign(2,0);
-    	threshold = 0;
+
+    individual(xyCoord x){
+    	nWeight = 0;
+    	nAllele = 0;
+    	nAllele2 = 0;
+    	nParent_id = 0;
+    	nParent_id2 = 0;
+    	xy = x;
     }
 
-    individual(unsigned weight, int allele, int parent_id) {
-		nWeight.assign(2,0);
-    	nAllele.assign(2,0);
-    	nParent_id.assign(2,0);
-		nWeight[0] = weight;
-        nAllele[0] = allele;
-        nParent_id[0] = parent_id;
-        threshold = 0;
+    individual(xyCoord x, unsigned int weight, int allele, int parent_id) {
+		nWeight = weight;
+		nAllele = allele;
+		nAllele2 = 0;
+		nParent_id = parent_id;
+		nParent_id2 = 0;
+        xy = x;
     }
 };
 
