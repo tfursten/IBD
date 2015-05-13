@@ -86,27 +86,15 @@ int main(int ac, char** av)
             }
         }
 
-
-
-
         out << "X dimension set to " << nMaxX << ".\n"
         << "Y dimension set to " << nMaxY << ".\n"
         << "Run for " << nGenerations << " generations.\n"
         << "Burn " << nBurnIn << " generation(s).\n"
         << "Collect data every " << nSample << " Generation(s).\n"
         << "Number of Offspring set to " << nOffspring << ".\n"
-        << "Mutation rate set to " << dMut<< ".\n";
-
-
-
-        assert(fSigma>0);
-        assert(nTransPos <= nMaxX);
-        out << "Dispersal parameter set to " << fSigma << ".\n";
-
-        if (seed)
-            out << "User set PRNG seed to: " << seed << ".\n";
-        out << "Transect position is set to: " << nTransPos << ".\n"
-        << "Population landscape set to: " << bound << ".\n";
+        << "Mutation rate set to " << dMut<< ".\n"
+        << "Dispersal parameter set to " << fSigma << ".\n"
+        << "Landscape set to " << bound << ".\n";
 
     }
 

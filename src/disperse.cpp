@@ -19,7 +19,7 @@ void Dispersal::set_param(std::string name, float p1, float p2)
     else if (name == "normal")
         param1 = p1 * sqrt(2.0);
     else if (name == "gamma"){
-        //Currently using Marsaglia2000 methods which requires a>=1
+        //Using Marsaglia2000 method requires a>=1
         assert((p1 > 0) && (p2 > 0));
         param1 = p2; //alpha
         param2 = sqrt((param1*(1+param1))/(2.0*p1*p1)); //beta adjusted so second moment equals 2sigma^2
@@ -30,14 +30,13 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         }
         else param5 = 1;
         param3 = param1-(1/3.0); //d
-        param4 = (1.0/3.0)/sqrt(param3); //c
-        
+        param4 = (1.0/3.0)/sqrt(param3); //c   
     }
     else if (name == "pareto"){
-        //param1 = p2; //alpha
-        //param2 = sqrt((2*p1*p1*(param1-2))/param1); //xmax
-        param1 = p1;
-        param2 = p2;
+        param1 = p2; //alpha
+        param2 = sqrt((2*p1*p1*(param1-2))/param1); //xmax
+        //param1 = p1;
+        //param2 = p2;
     }
     //else if (name == "rectangle") //not working yet
         //assert((p2>=0) && (p3>=0) && (p4>=0));
@@ -225,8 +224,7 @@ int Dispersal::periodic(int x, int y)
 
 int Dispersal::disperse_cont(xorshift64& rand, int x, int y, double d)
 {
-    double a = rand.get_double53() * 2.0 * M_PI;
-    //cout << a << endl;
+    double a = rand.get_double53() * 2.0 * M_PI;  
     //int newX = floor(d*cos(a)+x+0.5);
     //int newY = floor(d*sin(a)+y+0.5);
     int newX = round(d*cos(a)+x);
