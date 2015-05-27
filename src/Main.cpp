@@ -108,23 +108,27 @@ int main(int ac, char** av)
     string param_file = outfileName+"_settings.txt";
     string gibd_data = outfileName+"_gIBD.txt";
     string pibd_data = outfileName+"_pIBD.txt";
+    string pop_data = outfileName+"_pop.txt";
     cout << "IBD Data saved to: " << ibd_data << endl;
     cout << "pIBD Data saved to: " << pibd_data << endl;
     cout << "gIBD Data saved to: " << gibd_data << endl;
     cout << "Parameters saved to: " << param_file << endl;
+    cout << "Transect alleles saved to: " << pop_data << endl;
     ofstream pout;
     ofstream dout;
     ofstream gout;
     ofstream iout;
+    ofstream popout;
     pout.open(param_file);
     dout.open(ibd_data);
     gout.open(gibd_data);
     iout.open(pibd_data);
+    popout.open(pop_data);
     pout << out.str();
     cout << out.str();
 	//Initialize Population
     clock_t start = clock();
-	Population pop(pout, dout, gout, iout, verbose);
+	Population pop(pout, dout, gout, iout, popout, verbose);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, bound, param, f);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
@@ -135,6 +139,7 @@ int main(int ac, char** av)
     dout.close();
     gout.close();
     iout.close();
+    popout.close();
 
 
 	return 0;

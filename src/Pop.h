@@ -68,6 +68,7 @@ private:
 	std::ofstream & dout;
 	std::ofstream & gout;
 	std::ofstream & iout;
+	std::ofstream & popout;
 	bool verbose;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
@@ -85,7 +86,7 @@ protected:
     int(Population::*disperse)(int,int);
 
 public:
-    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, std::ofstream &i, bool v): pout(p), dout(d), gout(g), iout(i), verbose(v) {};
+    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, std::ofstream &i, std::ofstream &pop, bool v): pout(p), dout(d), gout(g), iout(i), popout(pop), verbose(v) {};
     void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };

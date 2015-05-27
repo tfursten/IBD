@@ -311,6 +311,14 @@ void Population::samplePop(int gen)
         iout << vpIBD[k] << "/" << vN[k] << ((k < vpIBD.size()-1) ? "\t" : "\n");
     }
 
+    for(int i = m_nTransPos * m_nMaxY; i < m_nTransPos * m_nMaxY + m_nMaxX; ++i) {
+        if(m_vPop2[i].nWeight <= 0)
+            popout << -1 << ",";
+        else
+            popout << m_vPop2[i].nAllele << ",";
+    }
+    popout << endl;
+
 }
 
 
