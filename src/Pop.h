@@ -63,6 +63,7 @@ private:
 	int m_nLenTrans;
 	int m_nTransIdx;
 	xorshift64 m_myrand;
+	xorshift64 m_myMutRand;
 	Dispersal disp;
 	std::ofstream & pout;
 	std::ofstream & dout;

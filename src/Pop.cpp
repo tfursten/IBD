@@ -61,7 +61,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
         m_nTransPos = nTransPos;
         out << "Transect position is set to: " << m_nTransPos << ".\n";
     }
-
+    m_myMutRand.seed(create_random_seed());
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
     m_sBound = bound;
@@ -98,7 +98,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
 }
 
 void Population::setMutCount() {
-    m_nMutCount = floor(rand_exp(m_myrand, m_dMut));
+    m_nMutCount = floor(rand_exp(m_myMutRand, m_dMut));
 }
 
 
