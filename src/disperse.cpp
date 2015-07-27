@@ -38,6 +38,10 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         //param1 = p1;
         //param2 = p2;
     }
+    else if (name == "lomax"){
+        param1 = p2;
+        param2 = sqrt((-2+p2)*(-1+p2)*p1*p1);
+    }
     //else if (name == "rectangle") //not working yet
         //assert((p2>=0) && (p3>=0) && (p4>=0));
         //param1 = p1; //left
@@ -164,6 +168,11 @@ int Dispersal::cont_pareto(xorshift64& rand, int x1, int y1){
     //double d = param2/pow(1-rand.get_double53(),1/param1);
     double d = param2*exp(rand_exp(rand,param1)); //faster
     return disperse_cont(rand,x1,y1,d);
+}
+
+int Dispersal::cont_lomax(xorshift64& rand, int x1, int y1){
+    double d = param2*exp(rand_exp(rand,param1));
+    return disperse_cont(rand,x1,y1,d-param2);
 }
 
 
