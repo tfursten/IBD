@@ -40,8 +40,8 @@ inline int xy2i(xyCoord xy, int mx, int my) {
 	return xy2i(xy.first,xy.second,mx,my);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,\
-                            unsigned int seed, int nTransPos, int nSample, int nPopSample,\
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,
+                            unsigned int seed, int nTransPos, int nSample, int nPopSample,
                             string dist_name, string bound, float param, bool fast, int nclass, int npairs)
 {
     ostringstream out;

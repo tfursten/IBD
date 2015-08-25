@@ -65,7 +65,7 @@ public:
             "triangular", "rayleigh", "ring"
             };
             static const fptr dist_ops[] = {
-                &Dispersal::cont_triangular,
+                &Dispersal::disc_triangular,
                 &Dispersal::disc_rayleigh,
                 &Dispersal::disc_ring
             };
@@ -84,11 +84,12 @@ public:
         }
         if(!ff){
             static const char name_keys[][16] = {
-            "exponential", "triangular", "normal", "rayleigh", "ring", "gamma", "pareto", "rice", "uniform", "lomax"
+            "exponential", "triangular", "normal", "rayleigh", "ring", 
+            "gamma", "pareto", "rice", "uniform", "lomax"
             };
             static const fptr dist_ops[] = {
                 &Dispersal::cont_exponential,
-                &Dispersal::disc_triangular,
+                &Dispersal::cont_triangular,
                 &Dispersal::cont_halfNormal,
                 &Dispersal::cont_rayleigh,
                 &Dispersal::cont_ring,

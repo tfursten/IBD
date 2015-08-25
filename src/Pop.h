@@ -73,7 +73,6 @@ private:
 	std::ofstream & gout;
 	std::ofstream & iout;
 	std::ofstream & popout;
-	std::ofstream & distout;
 	std::ofstream & nbout;
 	std::ofstream & demout;
 	bool verbose;
@@ -98,8 +97,14 @@ protected:
 
 public:
     
-    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g,std::ofstream &i, std::ofstream &pop, std::ofstream &dt,std::ofstream &nb, std::ofstream &dem, bool v): pout(p), dout(d), gout(g), iout(i), popout(pop), distout(dt), nbout(nb), demout(dem), verbose(v), disp(dt) {};
-    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, int nPopSample, string dist_name, string bound, float param, bool fast, int nclass, int npairs);
+    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g,std::ofstream &i,
+    	std::ofstream &pop, std::ofstream &dt,std::ofstream &nb, std::ofstream &dem, 
+    	bool v): pout(p), dout(d), gout(g), iout(i), popout(pop), nbout(nb), 
+    	demout(dem), verbose(v), disp(dt) {};
+    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  
+    	double dMut, unsigned int seed, int nTransPos, int nSample, 
+    	int nPopSample, string dist_name, string bound, float param, 
+    	bool fast, int nclass, int npairs);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };
 
