@@ -146,7 +146,6 @@ int main(int ac, char** av)
     cout << out.str();
 	//Initialize Population
     clock_t start = clock();
-	cout << iout << endl;
     Population pop(pout, dout, gout, iout, popout, distout, nbout, demout, verbose);
 	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample,\
         nPopSample, dist_name, bound, param, f, ndClass, nPairs);
