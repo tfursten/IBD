@@ -9,6 +9,10 @@ inline int xy2i(int x, int y, int mx, int my) {
     return x*my+y;
 }
 
+inline int wrap_around(int x, int w) {
+    return ((x%w)+w)%w;
+}
+
 void Dispersal::set_param(std::string name, float p1, float p2)
 {
     assert(p1>0);
@@ -42,18 +46,11 @@ void Dispersal::set_param(std::string name, float p1, float p2)
         param1 = p2;
         param2 = sqrt((-2+p2)*(-1+p2)*p1*p1);
     }
-    //else if (name == "rectangle") //not working yet
-        //assert((p2>=0) && (p3>=0) && (p4>=0));
-        //param1 = p1; //left
-        //param2 = p2; //right
-        //param3 = p3; //up
-        //param4 = p4; //down
     else if (name == "ring"){
         assert((p2>=0) && (p2<=1));
 	param1 = sqrt((2.0*p1*p1)/(1.0-p2));
         param2 = p2; //center
     }
-
     else if (name == "rice"){
         param1 = p1*cos(M_PI/4.0);//x
         param2 = p1*sin(M_PI/4.0);//y
@@ -75,8 +72,6 @@ void Dispersal::set_param(std::string name, float p1, float p2)
 
 }
 
-
-
 void Dispersal::init_disc(std::string name)
 {
     if (name == "ring")
@@ -87,8 +82,6 @@ void Dispersal::init_disc(std::string name)
         ray1.initialize(param1,6);
         ray2.initialize(param2,6);
     }
-    //if (name == "rectangle")
-        //rect.initialize(param1,param2,param3,param4);
 }
 
 int Dispersal::cont_exponential(xorshift64& rand, int x1, int y1)
@@ -111,11 +104,30 @@ int Dispersal::cont_halfNormal(xorshift64& rand, int x1, int y1)
 
 int Dispersal::cont_rayleigh(xorshift64& rand, int x1, int y1)
 {
-
-    double dX = floor(rand_normal(rand,0,param1)+x1+0.5);
-    double dY = floor(rand_normal(rand,0,param2)+y1+0.5);
-    return (this->*boundary)(dX,dY);
-
+	if(!testFlag){
+        double dX = floor(rand_normal(rand,0,param1)+x1+0.5);
+        double dY = floor(rand_normal(rand,0,param2)+y1+0.5);
+        return (this->*boundary)(dX,dY);
+    }
+    else{
+        double dX = rand_normal(rand,0,param1)+x1;
+        double dY = rand_normal(rand,0,param1)+y1;
+        double d = sqrt((dX-x1)*(dX-x1) + (dY-y1)*(dY-y1));
+        dX = floor(dX+0.5);
+        dY = floor(dY+0.5);
+        int i;
+        if (dX >= 0 && dX < maxX && dY >= 0 && dY < maxY)
+            i = xy2i(dX,dY,maxX,maxY);
+        else i = -1;
+        out << d << ",";
+        if(i==-1)
+            out << "-1" << endl;
+        else{
+            double dd = sqrt((dX-x1)*(dX-x1)+(dY-y1)*(dY-y1));
+            out << dd << endl;
+        }
+        return (this->*boundary)(dX,dY);
+    }
 }
 
 int Dispersal::cont_rice(xorshift64& rand, int x1, int y1)
@@ -195,25 +207,12 @@ int Dispersal::disc_ring(xorshift64& rand, int x1, int y1)
     return disperse_disc(x1,y1,dXY.first,dXY.second);
 }
 
-//int Dispersal::disc_rectangular(xorshift& rand, int x1, int y1)
-//{
-    //xyCoord dXY = rect.disperse(rand.get_uint64());
-    //return disperse_rect(x1,y1,dXY.first,dXY.second);
-  //  return disperse_rect(x1,y1,x1,y1);
-//}
-
 int Dispersal::disc_uniform(xorshift64& rand, int x1, int y1)
 {
     int dX = rand.get_uint64() % maxX;
     int dY = rand.get_uint64() % maxY;
     return (this->*boundary)(dX,dY);
-
 }
-
-inline int wrap_around(int x, int w) {
-    return ((x%w)+w)%w;
-}
-
 
 int Dispersal::absorbing(int x, int y)
 {
@@ -230,17 +229,22 @@ int Dispersal::periodic(int x, int y)
 }
 
 
-
 int Dispersal::disperse_cont(xorshift64& rand, int x, int y, double d)
 {
     double a = rand.get_double53() * 2.0 * M_PI;  
-    //int newX = floor(d*cos(a)+x+0.5);
-    //int newY = floor(d*sin(a)+y+0.5);
     int newX = round(d*cos(a)+x);
     int newY = round(d*sin(a)+y);
     int i = (this->*boundary)(newX,newY);
+    if(testFlag){
+        out << d << ",";
+        if(i==-1)
+            out << "-1" << endl;
+        else{
+            double dd = sqrt((newX-x)*(newX-x)+(newY-y)*(newY-y));
+            out << dd << endl;
+        }
+    }
     return i;
-
 }
 
 int Dispersal::disperse_disc(int x1, int y1, int x2, int y2)
@@ -251,3 +255,6 @@ int Dispersal::disperse_disc(int x1, int y1, int x2, int y2)
     return i;
 }
 
+void Dispersal::set_test(bool t){
+    testFlag = t;
+}

@@ -40,7 +40,9 @@ inline int xy2i(xyCoord xy, int mx, int my) {
 	return xy2i(xy.first,xy.second,mx,my);
 }
 
-void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast)
+void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut,\
+                            unsigned int seed, int nTransPos, int nSample, int nPopSample,\
+                            string dist_name, string bound, float param, bool fast, int nclass, int npairs)
 {
     ostringstream out;
 
@@ -61,24 +63,27 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
         m_nTransPos = nTransPos;
         out << "Transect position is set to: " << m_nTransPos << ".\n";
     }
-    m_myMutRand.seed(create_random_seed());
     m_nMaxX = nMaxX;
     m_nMaxY = nMaxY;
     m_sBound = bound;
     m_nOffspring = nOffspring;
+    m_nDistClass = nclass;
+    m_nPairs = npairs;
     m_dMut = -log(1.0-dMut);
     m_nIndividuals = nMaxX * nMaxY;
     m_nAlleleID = m_nIndividuals;
     m_nLenTrans = ceil(m_nMaxY/2.0);
     m_nTransIdx = m_nTransPos*m_nMaxY + m_nMaxY/4;
+    m_nBoxIdxMin = m_nMaxX/4;
+    m_nBoxIdxMax = m_nBoxIdxMin + ceil(m_nMaxX/2.0);
     setMutCount();
 
     m_nSample = nSample;
+    m_nPopSample = nPopSample;
     m_dSigma = dSigma;
 
     out << "Length of Transect is " << m_nLenTrans << ".\n";
     out << "Transect Index: " << m_nTransIdx << ".\n";
-
     disp.initialize(dist_name, m_nMaxX, m_nMaxY, fast, m_sBound, dSigma, param);
     out << "Dispersal distribution set to " << disp.getName() << ".\n" ;
     out << "Extra parameter set to " << param << ".\n";
@@ -98,7 +103,7 @@ void Population::initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,
 }
 
 void Population::setMutCount() {
-    m_nMutCount = floor(rand_exp(m_myMutRand, m_dMut));
+    m_nMutCount = floor(rand_exp(m_myrand, m_dMut));
 }
 
 
@@ -124,19 +129,23 @@ void Population::evolve(int m_nBurnIn, int m_nGenerations)
         swap(m_vPop1,m_vPop2);
     }
     //outfile headers
-    dout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
-    gout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
-    iout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf\tIBD" << endl;
+    demout << "#Gen\tSigma2\tSigma3\tKo\tKe\tf" << endl;
 
 
     for(int ggg=0;ggg<m_nGenerations;++ggg)
     {
-        for(int parent=0; parent<m_nIndividuals;parent++)
+        for(int parent=0; parent<m_nIndividuals;parent++){
             step(parent);
-        if (ggg % m_nSample == 0)
-            samplePop(ggg);
+        }
+        if (ggg % m_nSample == 0){
+            sampleIBD(ggg);
+            sampleNb();
+        }
+        if (ggg % m_nPopSample == 0)
+            samplePop();
         swap(m_vPop1,m_vPop2);
     }
+    sampleDist();
 }
 
 
@@ -217,7 +226,7 @@ double euclideanDist3(int i, int j, int mx, int my){
 }
 
 
-void Population::samplePop(int gen)
+void Population::sampleIBD(int gen)
 {
     vector<int> vIBD(m_nLenTrans,0);
     vector<int> vgIBD(m_nLenTrans,0);
@@ -301,24 +310,72 @@ void Population::samplePop(int gen)
     //verbose option for checking burn-in
     if(verbose)
         cout << "Gen: " << gen << " Ko: " << ko << " Ke: " << ke << endl;
-
-    dout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
-    gout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
-    iout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\t";
+    demout << gen << "\t" << dSigma2/(2.0*szSample) <<"\t" << dSigma3/(2.0*szSample)<<"\t"<<ko<<"\t"<<ke<<"\t"<<f<<"\n";
     for(unsigned int k=0; k<vIBD.size();++k){
         dout << vIBD[k] << "/" << vN[k] << ((k < vIBD.size()-1) ? "\t" : "\n");
         gout << vgIBD[k] << "/" << vN[k] << ((k < vgIBD.size()-1) ? "\t" : "\n");
         iout << vpIBD[k] << "/" << vN[k] << ((k < vpIBD.size()-1) ? "\t" : "\n");
     }
 
-    for(int i = m_nTransPos * m_nMaxY; i < m_nTransPos * m_nMaxY + m_nMaxX; ++i) {
-        if(m_vPop2[i].nWeight <= 0)
-            popout << -1 << ",";
-        else
-            popout << m_vPop2[i].nAllele << ",";
-    }
-    popout << endl;
-
 }
 
+void Population::samplePop(){
+    for(int i = 0; i < m_nIndividuals; ++i) {
+        if(m_vPop2[i].nWeight <= 0)
+            popout << -1;
+        else
+            popout << m_vPop2[i].nAllele;
+        popout << ((i<m_nIndividuals-1) ? "," : "\n");
+    }
+}
 
+void Population::sampleDist(){
+    disp.set_test(true);
+    for(int i=m_nBoxIdxMin; i<m_nBoxIdxMax; i++){
+        for(int j=m_nBoxIdxMin; j<m_nBoxIdxMax; j++){
+            for(int k=0; k<m_nOffspring; k++){
+                disp(m_myrand,i,j);
+            }
+        }
+    }
+    disp.set_test(false);
+}
+
+void Population::sampleNb(){
+    vector<individual> pop(m_vPop2);
+    random_shuffle(pop.begin(),pop.end());
+    vector<int> vIBD(m_nDistClass,0);
+    vector<int> vN(m_nDistClass,0);
+    while(pop.size()){
+        individual ind1 = pop[0];
+        int x1 = ind1.xy.first;
+        int y1 = ind1.xy.second;
+        unsigned int i = 1;
+        bool found = false;
+        for(; i < pop.size(); i++){
+            individual ind2 = pop[i];
+            int x2 = ind2.xy.first;
+            int y2 = ind2.xy.second;
+            int d;
+            if(x1 == x2)
+                d = abs(y1-y2);
+            else if(y1 == y2)
+                d = abs(x1-x2);
+            else continue;
+            if(d > m_nDistClass || vN[d-1] >= m_nPairs)
+                continue;
+            if(ind1.nAllele == ind2.nAllele){
+                vIBD[d-1] += 1;
+            }
+            vN[d-1] += 1;
+            pop.erase(pop.begin()+i);
+            pop.erase(pop.begin());
+            found = true;
+            break;
+        }
+        if(!found)
+            pop.erase(pop.begin());
+    }
+    for(unsigned int k=0; k<vIBD.size();++k)
+        nbout << vIBD[k] << ((k< vIBD.size()-1) ? "\t" : "\n");
+}

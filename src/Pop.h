@@ -59,18 +59,25 @@ private:
 	int m_nMutCount;
 	int m_nIndividuals;
 	int m_nSample;
+	int m_nPopSample;
 	int m_nTransPos;
 	int m_nLenTrans;
 	int m_nTransIdx;
+	int m_nBoxIdxMin;
+	int m_nBoxIdxMax;
+	int m_nDistClass;
+	int m_nPairs;
 	xorshift64 m_myrand;
-	xorshift64 m_myMutRand;
-	Dispersal disp;
 	std::ofstream & pout;
 	std::ofstream & dout;
 	std::ofstream & gout;
 	std::ofstream & iout;
 	std::ofstream & popout;
+	std::ofstream & distout;
+	std::ofstream & nbout;
+	std::ofstream & demout;
 	bool verbose;
+	Dispersal disp;
 	std::vector<individual> m_vPop1;
 	std::vector<individual> m_vPop2;
 	std::vector<int> m_vtransIndex;
@@ -81,14 +88,18 @@ private:
 	void setMutCount();
 	void step(int parent);
 	int mutate(int allele);
-	void samplePop(int gen);
+	void sampleIBD(int gen);
+	void samplePop();
+	void sampleDist();
+	void sampleNb();
 
 protected:
     int(Population::*disperse)(int,int);
 
 public:
-    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g, std::ofstream &i, std::ofstream &pop, bool v): pout(p), dout(d), gout(g), iout(i), popout(pop), verbose(v) {};
-    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, string dist_name, string bound, float param, bool fast);
+    
+    Population(std::ofstream &p, std::ofstream &d, std::ofstream &g,std::ofstream &i, std::ofstream &pop, std::ofstream &dt,std::ofstream &nb, std::ofstream &dem, bool v): pout(p), dout(d), gout(g), iout(i), popout(pop), distout(dt), nbout(nb), demout(dem), verbose(v), disp(dt) {};
+    void initialize(int nMaxX, int nMaxY, int nOffspring, double dSigma,  double dMut, unsigned int seed, int nTransPos, int nSample, int nPopSample, string dist_name, string bound, float param, bool fast, int nclass, int npairs);
 	void evolve(int m_nGenerations, int m_nBurnIn);
 };
 

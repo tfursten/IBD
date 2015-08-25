@@ -6,7 +6,7 @@ int main(int ac, char** av)
 	namespace po = boost::program_options;
     using namespace std;
 
-    static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn, nTransPos, nSample;
+    static int nGenerations, nMaxX, nMaxY, nOffspring, nBurnIn, nTransPos, nSample, nPopSample, ndClass, nPairs;
     unsigned int seed;
     static double dMut;
     static float fSigma, param;
@@ -33,6 +33,7 @@ int main(int ac, char** av)
             ("sigma,s", po::value<float>(&fSigma)->default_value(2.0), "Set dispersal parameter")
             ("burn,b", po::value<int>(&nBurnIn)->default_value(0),"Set Burn-in Period")
             ("sample,t", po::value<int>(&nSample)->default_value(1),"Sample every n generations after burn-in")
+            ("pop_sample", po::value<int>(&nPopSample)->default_value(100000), "Sample a full population every n generations after burn-in")
             ("output_file,f", po::value<string>(&outfileName)->default_value(string("data")),"Output File Name")
             ("seed", po::value<unsigned int>(&seed)->default_value(0), "Set PRNG seed, 0 to create random seed")
             ("landscape", po::value<string>(&bound)->default_value(string("torus")),"Set boundary conditions: torus or rectangular")
@@ -40,6 +41,8 @@ int main(int ac, char** av)
             ("verbose", po::value<bool>(&verbose)->default_value(false),"Print data to screen")
             ("sparam", po::value<float>(&param)->default_value(0),"Extra Parameter for dispersal")
             ("fast", po::value<bool>(&f)->default_value(true),"Use fast dispersal when available")
+            ("ndistClass", po::value<int>(&ndClass)->default_value(20),"Number of distance classes for Nb estimate")
+            ("nPairs", po::value<int>(&nPairs)->default_value(20),"Number of pairs for Nb estimate")
             ;
 
         po::options_description hidden("Hidden Options");
@@ -87,14 +90,17 @@ int main(int ac, char** av)
         }
 
         out << "X dimension set to " << nMaxX << ".\n"
-        << "Y dimension set to " << nMaxY << ".\n"
+        << "Y dimension set to " << nMaxX << ".\n"
         << "Run for " << nGenerations << " generations.\n"
         << "Burn " << nBurnIn << " generation(s).\n"
         << "Collect data every " << nSample << " Generation(s).\n"
+        << "Collect population every " << nPopSample << " Generation(s).\n"
         << "Number of Offspring set to " << nOffspring << ".\n"
         << "Mutation rate set to " << dMut<< ".\n"
         << "Dispersal parameter set to " << fSigma << ".\n"
-        << "Landscape set to " << bound << ".\n";
+        << "Landscape set to " << bound << ".\n"
+        << "Number of distances classes for Nb estimate set to " << ndClass << ".\n"
+        << "Number of pairs collected for Nb estimate set to " << nPairs << ".\n";
 
     }
 
@@ -103,43 +109,61 @@ int main(int ac, char** av)
         cout<< e.what() << "\n";
         return 1;
     }
-
+    nMaxY = nMaxX; //override maxY, landscape needs to be square at the moment
     string ibd_data = outfileName+"_IBD.txt";
     string param_file = outfileName+"_settings.txt";
     string gibd_data = outfileName+"_gIBD.txt";
     string pibd_data = outfileName+"_pIBD.txt";
     string pop_data = outfileName+"_pop.txt";
+    string dist_data = outfileName+"_dist.txt";
+    string nb_data = outfileName+"_nb.txt";
+    string dem_data = outfileName+"_dem.txt";
     cout << "IBD Data saved to: " << ibd_data << endl;
     cout << "pIBD Data saved to: " << pibd_data << endl;
     cout << "gIBD Data saved to: " << gibd_data << endl;
     cout << "Parameters saved to: " << param_file << endl;
-    cout << "Transect alleles saved to: " << pop_data << endl;
+    cout << "Entire population saved to: " << pop_data << endl;
+    cout << "Distance data saved to: " << dist_data << endl;
+    cout << "Nb size estimation data saved to: " << nb_data << endl;
+    cout << "Demographic data saved to: " << dem_data << endl;
     ofstream pout;
     ofstream dout;
     ofstream gout;
     ofstream iout;
     ofstream popout;
+    ofstream distout;
+    ofstream nbout;
+    ofstream demout;
     pout.open(param_file);
     dout.open(ibd_data);
     gout.open(gibd_data);
     iout.open(pibd_data);
     popout.open(pop_data);
+    distout.open(dist_data);
+    nbout.open(nb_data);
+    demout.open(dem_data);
     pout << out.str();
     cout << out.str();
 	//Initialize Population
     clock_t start = clock();
-	Population pop(pout, dout, gout, iout, popout, verbose);
-	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample, dist_name, bound, param, f);
+	cout << iout << endl;
+    Population pop(pout, dout, gout, iout, popout, distout, nbout, demout, verbose);
+	pop.initialize(nMaxX,nMaxY,nOffspring,fSigma,dMut,seed,nTransPos, nSample,\
+        nPopSample, dist_name, bound, param, f, ndClass, nPairs);
 	//Run Simulation
 	pop.evolve(nBurnIn, nGenerations);
 	clock_t end = clock();
 	float seconds = (float)(end-start)/ CLOCKS_PER_SEC;
     cout << "TIME: " << seconds << endl;
+    pout << "TIME: " << seconds << endl;
     pout.close();
     dout.close();
     gout.close();
     iout.close();
     popout.close();
+    distout.close();
+    nbout.close();
+    demout.close();
 
 
 	return 0;
