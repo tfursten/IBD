@@ -4,7 +4,8 @@ Isolation by distance simulation
 
 A spatially explicit individual-based simulation to model dispersal on a lattice using different dispersal distribution functions.  
 
-[arXiv](http://arxiv.org/pdf/1501.01085v1.pdf)
+[arXiv](http://arxiv.org/pdf/1501.01085v1.pdf)  
+[PeerJ](https://peerj.com/articles/1848/)
 
 Author
 ------
