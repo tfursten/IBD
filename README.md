@@ -2,8 +2,10 @@ IBD
 ===
 Isolation by distance simulation
 
-A spatially explicit individual-based simulation to model dispersal on a lattice using different dispersal distribution functions. 
+A spatially explicit individual-based simulation to model dispersal on a lattice using different dispersal distribution functions.  
+
 [arXiv](http://arxiv.org/pdf/1501.01085v1.pdf)
+
 Author
 ------
 Tara Furstenau  
@@ -22,23 +24,23 @@ The offspring will next disperse from their orgininal cell according to a set di
 
 There are currently 9 different dispersal distributions: exponential, gamma, half-normal, Pareto, Rayleigh, Rice, ring, and uniform. Some distributions have two implementations where one version is faster than the other.  The faster version is used by setting the --fast flag to true which is default. All uniform pseudo-random numbers are generated using an efficient xorshift algorithm [(Marsaglia 2003)](http://www.jstatsoft.org/v08/i14/).
 
-###Exponential
+### Exponential
 The [exponential](http://en.wikipedia.org/wiki/Exponential_distribution) dispersal function takes a single argument (sigma) and returns polar coordinates with exponetially distributed distances with rate 1/sigma and a uniform angle.  The distance values are drawn using an implementation of the ziggurat rejection sampling algorithm for the exponential distribution [(Marsaglia and Tsang, 2000)](http://www.jstatsoft.org/v05/i08/paper/).
-###Gamma
+### Gamma
 The [gamma](http://en.wikipedia.org/wiki/Gamma_distribution) dispersal function takes two arguments, sigma and alpha, and the beta parameter is calculated so that the second moment of the distribution is equal to 2*sigma^2. This function returns polar coordinates with gamma distributed distances and a uniform angle. The distance values are generated using [Marsaglia's (2000)](http://dl.acm.org/citation.cfm?id=358414) rejection sampling algorithm which takes advantage of the fast ziggurat procedure for generating normally distributed PRNs [(Marsaglia and Tsang, 2000)](http://www.jstatsoft.org/v05/i08/paper/).    
-###Half-Normal
+### Half-Normal
 The [half-normal](http://en.wikipedia.org/wiki/Half-normal_distribution) dispersal function takes a single argument, sigma, and returns polar coordinates with half-normal distributed distances with variance parameter sigma*sqrt(2) and a uniform angle. The distance values are the absolute value of draws from a normal distribution using an implementation of the ziggurat rejection sampling algorithm [(Marsaglia and Tsang, 2000)](http://www.jstatsoft.org/v05/i08/paper/).
-###Pareto
+### Pareto
 The [Pareto](http://en.wikipedia.org/wiki/Pareto_distribution) dispersal function takes two arguments, sigma and alpha and the Xmin parameter is calculated so that the second moment of the distribution is equal to 2*sigma^2. The function returns polar coordinates with Pareto distributed distances and a uniform angle. The distance values are generated using inverse transform sampling, which, due to the relationship between the Pareto and exponential distributions, takes advantage of the fast ziggurat procedure for generating exponentially distributed PRNs [(Marsaglia and Tsang, 2000)](http://www.jstatsoft.org/v05/i08/paper/).  
-###Rayleigh
+### Rayleigh
 The [Rayleigh](http://en.wikipedia.org/wiki/Rayleigh_distribution) dispersal function may take one or two arguments, sigma_x and sigma_y.  If only a single argument is given, sigma will be the same for each dimension and result in an isometric 2-dimensional normal distribution.  For the sake of uniformity, this was called the Rayleigh dispersal function because it originally returned polar coordinates with Rayleigh distributed distances and a uniform angle; however, this required an inefficient converion from polar to Cartesian coordinates. We instead draw axial offset distances from a normal distribution with variance sigma_x^2 (or sigma_y^2) using an implementation of the ziggurat rejection sampling algorithm [(Marsaglia and Tsang, 2000)](http://www.jstatsoft.org/v05/i08/paper/).  There is a "fast" version of this disperal function available which precalculates the probability of dispersing on a discrete lattice.  Once the dispersal probabilities are calculated we use the efficient Alias method to sample from this discrete probability distribution [(Vose, 1991)](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=92917  ).
-###Rice
+### Rice
 The [Rice](http://en.wikipedia.org/wiki/Rice_distribution) dispersal function takes two arguments, sigma and angle.  This distribution results in an isometric 2-dimensional normal distribution where the mean has shifted away from the origin to a polar coordinate (v,angle). The v parameter is calculated so that the second moment of the distribution is equal to 2 x sigma^2.  Axial distances are drawn from two normal distributions with means v x cos(angle) and v x sin(angle) and variance sigma^2 using an implementation of the ziggurat rejection sampling algorithm [(Marsaglia and Tsang,2000)](http://www.jstatsoft.org/v05/i08/paper/).
-###Ring
+### Ring
 The [ring](https://github.com/tfursten/Ring) dispersal function takes two arguments, sigma and p.  This distribution returns a polar coordinates with a constant distance sigma and a uniform angle. The p parameter determines the probability of not dispersing away from the origin.  There is a fast version of this dispersal function available which precalcuates the probability of dispersing on a discrete lattice.  Once the dispersal probabilities are calculated we use the efficient Alias method to sample from this discrete probability distribution [(Vose, 1991)](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=92917  )
-###Triangular
+### Triangular
 The [triangular](http://en.wikipedia.org/wiki/Triangular_distribution) dispersal function takes a single argument, sigma, and returns polar coordinates with triangular distributed distance with a=0, b=c=2*sigma, and a uniform angle. The distance values are generated using inverse transform sampling.  There is a fast version of this dispersal function available which precalcuates the probability of dispersing on a discrete lattice.  Once the dispersal probabilities are calculated we use the efficient Alias method to sample from this discrete probability distribution [(Vose, 1991)](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=92917  ).
-###Uniform
+### Uniform
 The uniform dispersal function takes two arguments, the x and y dimensions of the landscape.  It returns a new xy coordinate anywhere on the landscape with uniform probability.  
 
 Compiling from Source Code
